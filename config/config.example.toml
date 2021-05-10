@@ -1,0 +1,38 @@
+[server]
+# 服务监听地址和端口
+addr = "0.0.0.0:8002"
+    # Swagger 配置
+    [server.swagger]
+    # 是否启用，正式环境请设置为 false
+    enabled = false
+
+[app]
+# 是否自动删除样例文件
+clear_example_file = true
+    # 资源配置
+    [app.resource]
+    # 资源域名
+    host = "https://res.ceeqee.com"
+    # 资源上传目录，该目录为 host 的根目录
+    path = "storage/resource"
+
+[log]
+# 日志目录
+dir = "storage/logs"
+# 日志等级
+level = "info"
+# 是否输出到控制台
+std_print = false
+
+[database]
+    [database.platform]
+    type        = "mysql"
+    dsn         = "user:password@tcp(ip:prot)/database?charset=utf8mb4&parseTime=true&loc=Local"
+    max_idle    = 10
+    max_open    = 100
+    log_mode    = true
+    max_life_time = 30
+
+[job]
+# 是否启用
+enable = false
