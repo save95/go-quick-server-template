@@ -4,9 +4,9 @@ import (
 	"server-api/global"
 	"server-api/repository/platform"
 
-	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
 	"github.com/save95/go-pkg/utils/userutil"
+	"gorm.io/gorm"
 )
 
 type dataBuilder struct {

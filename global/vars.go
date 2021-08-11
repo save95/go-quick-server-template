@@ -1,14 +1,15 @@
 package global
 
 import (
-	"github.com/jinzhu/gorm"
 	"github.com/save95/xlog"
+	"gorm.io/gorm"
 )
 
 var (
 	Config projectConfig
 	Log    xlog.XLogger
+)
 
-	// db
+var (
 	DbPlatform *gorm.DB
 )

@@ -37,16 +37,13 @@ func (s service) Login(ctx context.Context, in *createTokenRequest) (*tokenEntit
 	}
 
 	// 生成JWT TOKEN
-	claims, err := jwt.NewClaims(types.User{
+	token := jwt.NewToken(types.User{
 		ID:    user.ID,
 		Name:  user.Account,
 		Roles: user.Roles(),
 	})
-	if err != nil {
-		return nil, xerror.Wrap(err, "生成 Token 时失败")
-	}
 
-	token, err := claims.ToTokenString()
+	tokenStr, err := token.ToString()
 	if err != nil {
 		return nil, xerror.Wrap(err, "生成 Token 时失败")
 	}
@@ -63,7 +60,7 @@ func (s service) Login(ctx context.Context, in *createTokenRequest) (*tokenEntit
 	// todo 写登陆日志
 
 	return &tokenEntity{
-		AccessToken:  token,
+		AccessToken:  tokenStr,
 		Roles:        user.RoleTitles(),
 		Introduction: "",
 		ID:           user.ID,

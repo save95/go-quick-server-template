@@ -4,8 +4,8 @@ import (
 	"server-api/global"
 	"time"
 
-	"github.com/jinzhu/gorm"
 	"github.com/save95/go-pkg/http/types"
+	"gorm.io/gorm"
 )
 
 type User struct {

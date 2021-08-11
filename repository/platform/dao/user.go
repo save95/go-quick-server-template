@@ -5,11 +5,13 @@ import (
 	"server-api/global"
 	"server-api/repository/platform"
 
+	"github.com/pkg/errors"
+
 	"github.com/save95/go-pkg/model/pager"
 
-	"github.com/jinzhu/gorm"
 	"github.com/save95/xerror"
 	"github.com/save95/xerror/xcode"
+	"gorm.io/gorm"
 )
 
 type user struct {
@@ -62,7 +64,7 @@ func (u *user) First(id uint) (*platform.User, error) {
 
 	var record platform.User
 	if err := u.db.Where("id = ?", id).First(&record).Error; nil != err {
-		if gorm.IsRecordNotFoundError(err) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, xerror.WithXCode(xcode.DBRecordNotFound)
 		}
 		return nil, xerror.WrapWithXCode(err, xcode.DBFailed)
@@ -82,7 +84,7 @@ func (u *user) FirstByAccount(genre uint8, account string) (*platform.User, erro
 
 	var record platform.User
 	if err := db.First(&record).Error; nil != err {
-		if gorm.IsRecordNotFoundError(err) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, xerror.WithXCode(xcode.DBRecordNotFound)
 		}
 
@@ -110,8 +112,8 @@ func (u *user) Paginate(option *pager.Option) ([]*platform.User, uint, error) {
 		return nil, 0, xerror.WrapWithXCode(err, xcode.DBFailed)
 	}
 
-	var total uint
-	db.Count(&total)
+	var total int64
+	_ = db.Count(&total).Error
 
-	return records, total, nil
+	return records, uint(total), nil
 }
