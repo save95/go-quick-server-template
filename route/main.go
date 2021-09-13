@@ -2,7 +2,10 @@ package route
 
 import (
 	"server-api/app/http/api/ping"
+	"server-api/global"
 	"server-api/route/admin"
+
+	"github.com/save95/go-pkg/http/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,6 +18,7 @@ func Register(router *gin.Engine) {
 	router.Static("/storage", "storage/public")
 
 	router.Any("/ping", ping.Controller{}.Ping)
+	router.Any("/endpoint", ping.Controller{}.Endpoint, middleware.HttpPrinter(global.Log))
 
 	// 注册路由
 	registerAuth(router)

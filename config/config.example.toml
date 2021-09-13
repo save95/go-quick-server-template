@@ -16,6 +16,13 @@ clear_example_file = true
     # 资源上传目录，该目录为 host 的根目录
     path = "storage/resource"
 
+    # 管理后台配置
+    [admin]
+    # 初始帐号
+    account = "admin"
+    # 初始密码
+    password = "123456"
+
 [log]
 # 日志目录
 dir = "storage/logs"
@@ -23,6 +30,10 @@ dir = "storage/logs"
 level = "info"
 # 是否输出到控制台
 std_print = false
+# 是否打印 http 日志
+http_log = true
+# 是否仅打印 http 错误日志
+http_log_only_error = true
 
 [database]
     [database.platform]

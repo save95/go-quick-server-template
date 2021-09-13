@@ -8,9 +8,16 @@ import (
 type Controller struct {
 }
 
+// Ping 健康检查
 func (c Controller) Ping(ctx *gin.Context) {
 	res := service{}.Ping()
 
 	rru := restful.NewResponse(ctx)
 	rru.Retrieve(res)
+}
+
+// Endpoint 接受数据
+func (c Controller) Endpoint(ctx *gin.Context) {
+	rru := restful.NewResponse(ctx)
+	rru.WithMessage("success")
 }

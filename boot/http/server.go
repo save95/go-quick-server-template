@@ -11,6 +11,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/save95/go-pkg/http/middleware"
+	"github.com/save95/go-pkg/http/restful"
 	"github.com/save95/xlog"
 )
 
@@ -36,6 +37,14 @@ func (s *server) Start() error {
 	//r.Use(middleware.RESTFul(global.ApiVersionLatest))
 	//r.Use(middleware.Log())
 	//r.Use(middleware.ParserSession())
+
+	// 开启 http 日志
+	if global.Config.Log.HttpLog && global.Log != nil {
+		r.Use(middleware.HttpLogger(restful.LogOption{
+			Logger:    global.Log,
+			OnlyError: global.Config.Log.HttpLogOnlyError,
+		}))
+	}
 
 	// 非调试模式下，启用发布模式
 	if xlog.ParseLevel(global.Config.Log.Level) != xlog.DebugLevel {

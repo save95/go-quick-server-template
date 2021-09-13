@@ -21,7 +21,12 @@ func (id dataBuilder) Init() error {
 }
 
 func (id dataBuilder) initUser() error {
-	pwd, err := userutil.NewHasher().Sum("123456")
+	admin := global.Config.App.Admin
+	if len(admin.Account) == 0 || len(admin.Password) < 6 {
+		return errors.New("account or password error")
+	}
+
+	pwd, err := userutil.NewHasher().Sum(admin.Password)
 	if nil != err {
 		return errors.Wrap(err, "make user password failed")
 	}
@@ -32,7 +37,7 @@ func (id dataBuilder) initUser() error {
 			ID: 1,
 		},
 		Genre:    uint8(global.RoleAdmin),
-		Account:  "admin",
+		Account:  admin.Account,
 		Password: pwd,
 		State:    1,
 	})
