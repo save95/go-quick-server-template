@@ -3,7 +3,7 @@ package user
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/save95/go-pkg/http/restful"
-	"github.com/save95/go-pkg/utils/strutil"
+	"github.com/save95/go-utils/strutil"
 )
 
 type Controller struct {

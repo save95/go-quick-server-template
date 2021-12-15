@@ -5,19 +5,28 @@ import (
 	"server-api/repository/platform"
 
 	"github.com/pkg/errors"
-	"github.com/save95/go-pkg/utils/userutil"
-	"gorm.io/gorm"
+	"github.com/save95/go-utils/userutil"
 )
 
 type dataBuilder struct {
 }
 
 func (id dataBuilder) Init() error {
+	if err := id.migrate(); nil != err {
+		return err
+	}
+
 	if err := id.initUser(); nil != err {
 		return err
 	}
 
 	return nil
+}
+
+func (id dataBuilder) migrate() error {
+	return global.DbPlatform.AutoMigrate(
+		&platform.User{}, &platform.UserLoginLog{},
+	)
 }
 
 func (id dataBuilder) initUser() error {
@@ -33,9 +42,7 @@ func (id dataBuilder) initUser() error {
 
 	// 初始化用户
 	global.DbPlatform.FirstOrCreate(&platform.User{
-		Model: gorm.Model{
-			ID: 1,
-		},
+		ID:       1,
 		Genre:    uint8(global.RoleAdmin),
 		Account:  admin.Account,
 		Password: pwd,

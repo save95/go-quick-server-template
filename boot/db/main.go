@@ -12,5 +12,17 @@ func Connect() error {
 		return errors.Wrap(err, "data builder init failed")
 	}
 
+	if err := initLocker(); nil != err {
+		return errors.Wrap(err, "locker init failed")
+	}
+
+	if err := initRedis(); nil != err {
+		return errors.Wrap(err, "redis init failed")
+	}
+
+	if err := initCache(); nil != err {
+		return errors.Wrap(err, "cache init failed")
+	}
+
 	return nil
 }

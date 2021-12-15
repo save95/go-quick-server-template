@@ -7,6 +7,8 @@ addr = "0.0.0.0:8002"
     enabled = false
 
 [app]
+# app 环境
+env = "local"
 # 是否自动删除样例文件
 clear_example_file = true
     # 资源配置
@@ -17,7 +19,7 @@ clear_example_file = true
     path = "storage/resource"
 
     # 管理后台配置
-    [admin]
+    [app.admin]
     # 初始帐号
     account = "admin"
     # 初始密码
@@ -43,6 +45,24 @@ http_log_only_error = true
     max_open    = 100
     log_mode    = true
     max_life_time = 30
+
+[cache]
+# 是否启用缓存
+enabled = false
+# 缓存驱动器
+drive = "redis"
+    [cache.redis]
+    addr     = "127.0.0.1:6379"
+    password = ""
+
+[locker]
+# 是否启用分布式锁
+enabled = false
+# 驱动器
+drive = "redis"
+    [locker.redis]
+    addr     = "127.0.0.1:6379"
+    password = ""
 
 [job]
 # 是否启用

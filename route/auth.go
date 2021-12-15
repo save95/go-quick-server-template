@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/save95/go-pkg/http/middleware"
+	"github.com/save95/go-pkg/http/types"
 )
 
 // 注册鉴权路由
@@ -19,5 +20,12 @@ func registerAuth(router *gin.Engine) {
 	{
 		// 创建 Token
 		ra.POST("/tokens", api.Token)
+
+		// 修改密码
+		ra.PUT(
+			"/passwords",
+			middleware.Roles([]types.IRole{global.RoleUser}),
+			api.ChangePwd,
+		)
 	}
 }

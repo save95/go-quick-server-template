@@ -1,24 +1,29 @@
 package platform
 
 import (
-	"server-api/global"
 	"time"
+
+	"server-api/global"
 
 	"github.com/save95/go-pkg/http/types"
 	"gorm.io/gorm"
 )
 
 type User struct {
-	gorm.Model
+	ID uint `gorm:"primaryKey;autoIncrement;not null"`
 
-	Genre       uint8
-	Account     string
-	Avatar      string
-	Password    string
-	State       int8
+	Genre       uint8  `gorm:"not null;uniqueIndex:udx_account"`
+	Account     string `gorm:"not null;size:32;uniqueIndex:udx_account"`
+	Avatar      string `gorm:"not null;size:128;default:''"`
+	Password    string `gorm:"not null;size:128"`
+	State       int8   `gorm:"not null;default:0"`
 	LastLoginAt *time.Time
-	LastLoginIp string
-	DriverNo    string
+	LastLoginIP string `gorm:"not null;size:32"`
+	DriverNo    string `gorm:"not null;size:32;default:''"`
+
+	CreatedAt time.Time      `gorm:"not null;default:current_timestamp"`
+	UpdatedAt time.Time      `gorm:"not null;default:current_timestamp on update current_timestamp"`
+	DeletedAt gorm.DeletedAt `gorm:"index:idx_deleted_at"`
 }
 
 func (u User) Roles() []types.IRole {

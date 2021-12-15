@@ -1,8 +1,6 @@
 package dao
 
 import (
-	"fmt"
-
 	"server-api/global"
 	"server-api/repository/platform"
 
@@ -15,12 +13,12 @@ import (
 	"gorm.io/gorm"
 )
 
-type user struct {
+type userLoginLog struct {
 	db *gorm.DB
 }
 
-func NewUser(options ...interface{}) *user {
-	impl := user{}
+func NewUserLoginLog(options ...interface{}) *userLoginLog {
+	impl := userLoginLog{}
 	for _, option := range options {
 		if db, ok := option.(*gorm.DB); ok {
 			impl.db = db
@@ -34,7 +32,7 @@ func NewUser(options ...interface{}) *user {
 	return &impl
 }
 
-func (u *user) Create(record *platform.User) error {
+func (u *userLoginLog) Create(record *platform.UserLoginLog) error {
 	if record.ID > 0 {
 		return xerror.WithXCode(xcode.DBRequestParamError)
 	}
@@ -46,7 +44,7 @@ func (u *user) Create(record *platform.User) error {
 	return nil
 }
 
-func (u *user) Save(record *platform.User) error {
+func (u *userLoginLog) Save(record *platform.UserLoginLog) error {
 	if record.ID == 0 {
 		return xerror.WithXCode(xcode.DBRecordNotFound)
 	}
@@ -58,12 +56,12 @@ func (u *user) Save(record *platform.User) error {
 	return nil
 }
 
-func (u *user) First(id uint) (*platform.User, error) {
+func (u *userLoginLog) First(id uint) (*platform.UserLoginLog, error) {
 	if id == 0 {
 		return nil, xerror.WithXCode(xcode.DBRequestParamError)
 	}
 
-	var record platform.User
+	var record platform.UserLoginLog
 	if err := u.db.Where("id = ?", id).First(&record).Error; nil != err {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, xerror.WithXCode(xcode.DBRecordNotFound)
@@ -74,16 +72,15 @@ func (u *user) First(id uint) (*platform.User, error) {
 	return &record, nil
 }
 
-func (u *user) FirstByAccount(genre uint8, account string) (*platform.User, error) {
-	if genre == 0 || len(account) == 0 {
+func (u *userLoginLog) FirstByUser(userID uint) (*platform.UserLoginLog, error) {
+	if userID == 0 {
 		return nil, xerror.WithXCode(xcode.DBRequestParamError)
 	}
 
-	db := u.db.Model(platform.User{}).
-		Where("genre = ?", genre).
-		Where("account = ?", account)
+	db := u.db.Model(platform.UserLoginLog{}).
+		Where("user_id = ?", userID)
 
-	var record platform.User
+	var record platform.UserLoginLog
 	if err := db.First(&record).Error; nil != err {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, xerror.WithXCode(xcode.DBRecordNotFound)
@@ -95,18 +92,17 @@ func (u *user) FirstByAccount(genre uint8, account string) (*platform.User, erro
 	return &record, nil
 }
 
-func (u *user) Paginate(option pager.Option) ([]*platform.User, uint, error) {
-	db := u.db.Model(platform.User{})
+func (u *userLoginLog) Paginate(option pager.Option) ([]*platform.UserLoginLog, uint, error) {
+	db := u.db.Model(platform.UserLoginLog{})
 
 	// 账号
-	if v, ok := option.Filter["account"]; ok {
-		if vv, ok := v.(string); ok && len(vv) > 0 {
-			vv = fmt.Sprintf("%%%s%%", vv)
-			db = db.Where("account like ?", vv)
+	if v, ok := option.Filter["userId"]; ok {
+		if vv, ok := v.(uint); ok && vv > 0 {
+			db = db.Where("user_id = ?", vv)
 		}
 	}
 
-	var records []*platform.User
+	var records []*platform.UserLoginLog
 	if err := db.Order("id DESC").
 		Offset(option.Start).Limit(option.GetLimit()).
 		Find(&records).Error; nil != err {

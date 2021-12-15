@@ -2,16 +2,14 @@ package db
 
 import (
 	"fmt"
-	"server-api/global"
 	"strings"
 
-	"github.com/save95/go-pkg/framework/dbutil"
-
-	"github.com/save95/go-pkg/constant"
-
-	"github.com/save95/go-pkg/utils/fsutil"
+	"server-api/global"
 
 	"github.com/pkg/errors"
+	"github.com/save95/go-pkg/constant"
+	"github.com/save95/go-pkg/framework/dbutil"
+	"github.com/save95/go-utils/fsutil"
 )
 
 func initSqlite() error {

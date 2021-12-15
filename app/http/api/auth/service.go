@@ -2,14 +2,17 @@ package auth
 
 import (
 	"context"
-	"server-api/repository/platform/dao"
 	"time"
+
+	"server-api/repository/platform"
+	"server-api/repository/platform/dao"
 
 	"github.com/gin-gonic/gin"
 	"github.com/save95/go-pkg/http/jwt"
 	"github.com/save95/go-pkg/http/types"
-	"github.com/save95/go-pkg/utils/userutil"
+	"github.com/save95/go-utils/userutil"
 	"github.com/save95/xerror"
+	"github.com/save95/xerror/xcode"
 )
 
 type service struct {
@@ -20,8 +23,11 @@ func newService() *service {
 }
 
 func (s service) Login(ctx context.Context, in *createTokenRequest) (*tokenEntity, error) {
-	udao := dao.NewUser()
-	user, err := udao.FirstByAccount(uint8(in.Genre), in.Account)
+	if in.Genre == 0 || len(in.Account) == 0 || len(in.Password) == 0 {
+		return nil, xerror.New("请填写正确的登录信息")
+	}
+
+	user, err := dao.NewUser().FirstByAccount(uint8(in.Genre), in.Account)
 	if err != nil {
 		return nil, xerror.Wrap(err, "账号或密码错误")
 	}
@@ -35,6 +41,11 @@ func (s service) Login(ctx context.Context, in *createTokenRequest) (*tokenEntit
 	if !userutil.NewHasher().Check(in.Password, user.Password) {
 		return nil, xerror.New("账号或密码错误")
 	}
+
+	return s.makeToken(ctx, user)
+}
+
+func (s *service) makeToken(ctx context.Context, user *platform.User) (*tokenEntity, error) {
 
 	// 生成JWT TOKEN
 	token := jwt.NewToken(types.User{
@@ -51,13 +62,20 @@ func (s service) Login(ctx context.Context, in *createTokenRequest) (*tokenEntit
 	// 更新最后登陆时间
 	now := time.Now()
 	user.LastLoginAt = &now
-	user.LastLoginIp = ctx.(*gin.Context).ClientIP()
+	user.LastLoginIP = ctx.(*gin.Context).ClientIP()
 	user.UpdatedAt = now
-	if err := udao.Save(user); nil != err {
+	if err := dao.NewUser().Save(user); nil != err {
 		return nil, xerror.Wrap(err, "登陆失败")
 	}
 
-	// todo 写登陆日志
+	// 写登陆日志
+	httpRequest := ctx.(*gin.Context).Request
+	_ = dao.NewUserLoginLog().Create(&platform.UserLoginLog{
+		UserID:    user.ID,
+		UserAgent: httpRequest.UserAgent(),
+		IP:        user.LastLoginIP,
+		Referer:   httpRequest.Referer(),
+	})
 
 	return &tokenEntity{
 		AccessToken:  tokenStr,
@@ -67,4 +85,32 @@ func (s service) Login(ctx context.Context, in *createTokenRequest) (*tokenEntit
 		Avatar:       user.Avatar,
 		Name:         user.Account,
 	}, nil
+}
+
+func (s *service) ChangePwd(ctx context.Context, in *changePwdRequest) error {
+	if err := in.Validate(); nil != err {
+		return xerror.WithXCodeMessage(xcode.RequestParamError, err.Error())
+	}
+
+	htx, err := types.ParserHttpContext(ctx)
+	if nil != err {
+		return xerror.Wrap(err, "http context parser failed")
+	}
+
+	user, err := dao.NewUser().First(htx.User().ID)
+	if nil != err {
+		return xerror.Wrap(err, "用户信息错误")
+	}
+
+	if !userutil.NewHasher().Check(in.OldPassword, user.Password) {
+		return xerror.New("原密码 错误")
+	}
+
+	password, err := userutil.NewHasher().Sum(in.NewPassword)
+	if nil != err {
+		return xerror.Wrap(err, "生成密码失败")
+	}
+	user.Password = password
+
+	return dao.NewUser().Save(user)
 }

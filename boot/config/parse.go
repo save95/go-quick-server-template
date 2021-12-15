@@ -1,14 +1,14 @@
 package config
 
 import (
-	"server-api/global"
 	"strings"
 
-	"github.com/pkg/errors"
-	"github.com/save95/go-pkg/utils/fsutil"
+	"server-api/global"
 
 	"github.com/BurntSushi/toml"
+	"github.com/pkg/errors"
 	"github.com/save95/go-pkg/constant"
+	"github.com/save95/go-utils/fsutil"
 )
 
 func Init() error {

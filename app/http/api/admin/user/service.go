@@ -2,11 +2,12 @@ package user
 
 import (
 	"context"
+
 	"server-api/repository/platform"
 	"server-api/repository/platform/dao"
 
 	"github.com/save95/go-pkg/model/pager"
-	"github.com/save95/go-pkg/utils/userutil"
+	"github.com/save95/go-utils/userutil"
 	"github.com/save95/xerror"
 	"github.com/save95/xerror/xcode"
 	"github.com/zywaited/go-common/xcopy"
@@ -16,7 +17,7 @@ type service struct {
 }
 
 func (s service) Paginate(_ context.Context, in *paginateRequest) ([]*entity, uint, error) {
-	records, total, err := dao.NewUser().Paginate(&pager.Option{
+	records, total, err := dao.NewUser().Paginate(pager.Option{
 		Start: int(in.Start),
 		Limit: int(in.Limit),
 		Filter: pager.Filter{

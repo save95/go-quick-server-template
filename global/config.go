@@ -4,8 +4,11 @@ package global
 type projectConfig struct {
 	Log           logConfig    // 日志配置
 	Server        serverConfig // 服务配置
-	Database      *dBConfig    // 数据库配置
-	ElasticSearch *esConfig    // es配置
+	Database      dBConfig     // 数据库配置
+	ElasticSearch esConfig     // es配置
+	Locker        lockerConfig // locker 配置
+	Cache         cacheConfig  // cache 配置
+	Redis         redisConfig  // redis 配置
 	App           appConfig    // App
 	Job           jobConfig    // JOB
 }
@@ -30,6 +33,7 @@ type swaggerConfig struct {
 }
 
 type appConfig struct {
+	Env              string         // 系统环境: prod/production-生产环境，local-本地环境
 	ClearExampleFile bool           `toml:"clear_example_file"` // 是否自动删除样例文件
 	Resource         resourceConfig // 资源配置
 	Admin            adminConfig    // 管理后台配置
@@ -56,6 +60,29 @@ type esConfig struct {
 	Urls        []string
 	SniffEnable bool
 	DebugEnable bool
+}
+
+type lockerConfig struct {
+	Enabled bool
+	Drive   string
+	Redis   redisConfig
+}
+
+type cacheConfig struct {
+	Enabled bool
+	Drive   string
+	Redis   redisConfig
+}
+
+type redisConfig struct {
+	Enabled        bool
+	Addr           string // 地址
+	Password       string // 密码
+	Db             int    // 数据库
+	Idle           int    // 最大连接数
+	Active         int    // 一次性活跃
+	Wait           bool   // 是否等待空闲连接
+	ConnectTimeout int64  `toml:"connect_timeout"` // 连接超时时间， 毫秒
 }
 
 type resourceConfig struct {

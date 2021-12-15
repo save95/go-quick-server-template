@@ -27,3 +27,20 @@ func (c Controller) Token(ctx *gin.Context) {
 	ru.SetHeader(constant.HttpTokenHeaderKey, token.AccessToken)
 	ru.Post(token)
 }
+
+func (c Controller) ChangePwd(ctx *gin.Context) {
+	ru := restful.NewResponse(ctx)
+
+	var in changePwdRequest
+	if err := ctx.ShouldBindJSON(&in); nil != err {
+		ru.WithError(err)
+		return
+	}
+
+	if err := newService().ChangePwd(ctx, &in); nil != err {
+		ru.WithError(err)
+		return
+	}
+
+	ru.WithMessage("success")
+}
