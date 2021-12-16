@@ -11,6 +11,8 @@ addr = "0.0.0.0:8002"
 env = "local"
 # 是否自动删除样例文件
 clear_example_file = true
+# 授权认证验证码是否开启
+auth_captcha_enabled = false
     # 资源配置
     [app.resource]
     # 资源域名

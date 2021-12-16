@@ -33,10 +33,12 @@ type swaggerConfig struct {
 }
 
 type appConfig struct {
-	Env              string         // 系统环境: prod/production-生产环境，local-本地环境
-	ClearExampleFile bool           `toml:"clear_example_file"` // 是否自动删除样例文件
-	Resource         resourceConfig // 资源配置
-	Admin            adminConfig    // 管理后台配置
+	Env                string // 系统环境: prod/production-生产环境，local-本地环境
+	ClearExampleFile   bool   `toml:"clear_example_file"`   // 是否自动删除样例文件
+	AuthCaptchaEnabled bool   `toml:"auth_captcha_enabled"` // 授权认证验证码是否开启
+
+	Resource resourceConfig // 资源配置
+	Admin    adminConfig    // 管理后台配置
 }
 
 type jobConfig struct {
