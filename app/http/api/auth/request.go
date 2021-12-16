@@ -10,6 +10,7 @@ type createTokenRequest struct {
 	Genre    global.Role `json:"genre"`
 	Account  string      `json:"account"`
 	Password string      `json:"password"`
+	Code     string      `json:"code"`
 }
 
 func (c createTokenRequest) Validate() error {

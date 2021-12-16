@@ -13,6 +13,8 @@ env = "local"
 clear_example_file = true
 # 密钥：jwt 认证等
 secret = "go-quick-server-template"
+# 授权认证验证码是否开启
+auth_captcha_enabled = false
     # 资源配置
     [app.resource]
     # 资源域名
