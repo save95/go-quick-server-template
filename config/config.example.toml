@@ -11,12 +11,14 @@ addr = "0.0.0.0:8002"
 env = "local"
 # 是否自动删除样例文件
 clear_example_file = true
+# 密钥：jwt 认证等
+secret = "go-quick-server-template"
     # 资源配置
     [app.resource]
     # 资源域名
     host = "https://res.ceeqee.com"
-    # 资源上传目录，该目录为 host 的根目录
-    path = "storage/resource"
+    # 资源上传目录，该目录为 host 的根目录，相对于项目根目录，或者使用绝对路径
+    path = "storage/public"
 
     # 管理后台配置
     [app.admin]

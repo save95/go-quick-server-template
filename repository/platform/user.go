@@ -14,6 +14,7 @@ type User struct {
 
 	Genre       uint8  `gorm:"not null;uniqueIndex:udx_account"`
 	Account     string `gorm:"not null;size:32;uniqueIndex:udx_account"`
+	Nickname    string `gorm:"size:32;default:''"`
 	Avatar      string `gorm:"not null;size:128;default:''"`
 	Password    string `gorm:"not null;size:128"`
 	State       int8   `gorm:"not null;default:0"`

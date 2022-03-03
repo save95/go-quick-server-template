@@ -45,6 +45,7 @@ func (id dataBuilder) initUser() error {
 		ID:       1,
 		Genre:    uint8(global.RoleAdmin),
 		Account:  admin.Account,
+		Nickname: "boss",
 		Password: pwd,
 		State:    1,
 	})

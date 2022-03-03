@@ -1,24 +1,20 @@
-package middleware
+package global
 
 import (
 	"time"
 
 	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
+	"github.com/save95/go-pkg/http/middleware"
 )
 
-// CORS 跨域处理中间件
-func CORS() gin.HandlerFunc {
-	return cors.New(corsHandler{}.getCORSConfig())
-}
-
-type corsHandler struct {
-}
-
-func (ch corsHandler) getCORSConfig() cors.Config {
+func CORSConfig() cors.Config {
 	return cors.Config{
-		//AllowOrigins:     []string{"https://xxxx.com"},
 		AllowOriginFunc: func(origin string) bool {
+			if !Env().IsProd() {
+				return true
+			}
+
+			// todo
 			//return origin == "https://xxxx.com"
 			return true
 		},
@@ -36,5 +32,13 @@ func (ch corsHandler) getCORSConfig() cors.Config {
 			"Link", "X-More-Resource", "X-Pagination-Info", "X-Total-Count",
 		},
 		MaxAge: 12 * time.Hour,
+	}
+}
+
+func JWTOption() *middleware.JWTOption {
+	return &middleware.JWTOption{
+		RoleConvert:     NewRole,
+		RefreshDuration: 0, // 0-不自动刷新
+		Secret:          []byte(Config.App.Secret),
 	}
 }

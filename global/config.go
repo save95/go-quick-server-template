@@ -35,6 +35,7 @@ type swaggerConfig struct {
 type appConfig struct {
 	Env              string         // 系统环境: prod/production-生产环境，local-本地环境
 	ClearExampleFile bool           `toml:"clear_example_file"` // 是否自动删除样例文件
+	Secret           string         // 密钥：jwt 认证等
 	Resource         resourceConfig // 资源配置
 	Admin            adminConfig    // 管理后台配置
 }

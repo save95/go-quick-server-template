@@ -4,5 +4,5 @@ GO_BUILD_COMPRESSION=$(GO_CMD) build -ldflags="-s -w"
 BINARY_NAME=server-api
 
 build:
-	swag init -g=../main.go -d=app
+	# swag init -g=../main.go -d=app
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(GO_BUILD_COMPRESSION) -o $(BINARY_NAME) && upx $(BINARY_NAME)

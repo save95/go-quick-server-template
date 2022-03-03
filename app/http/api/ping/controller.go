@@ -13,7 +13,7 @@ func (c Controller) Ping(ctx *gin.Context) {
 	res := service{}.Ping()
 
 	rru := restful.NewResponse(ctx)
-	rru.Retrieve(res)
+	rru.WithBody(res.Message)
 }
 
 // Endpoint 接受数据

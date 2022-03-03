@@ -4,11 +4,12 @@ import (
 	"context"
 	"log"
 	"net/http"
-	m "server-api/app/http/middleware"
-	"server-api/global"
-	"server-api/route"
 	"time"
 
+	"server-api/global"
+	"server-api/route"
+
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/save95/go-pkg/http/middleware"
 	"github.com/save95/go-pkg/http/restful"
@@ -32,7 +33,7 @@ func (s *server) Start() error {
 
 	// 注册全局中间件。注意顺序不要随意调整
 	r.Use(gin.Recovery())
-	r.Use(m.CORS())
+	r.Use(cors.New(global.CORSConfig()))
 	r.Use(middleware.HttpContext())
 	//r.Use(middleware.RESTFul(global.ApiVersionLatest))
 	//r.Use(middleware.Log())

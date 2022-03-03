@@ -106,15 +106,15 @@ func (u *user) Paginate(option pager.Option) ([]*platform.User, uint, error) {
 		}
 	}
 
+	var total int64
+	_ = db.Count(&total).Error
+
 	var records []*platform.User
 	if err := db.Order("id DESC").
 		Offset(option.Start).Limit(option.GetLimit()).
 		Find(&records).Error; nil != err {
 		return nil, 0, xerror.WrapWithXCode(err, xcode.DBFailed)
 	}
-
-	var total int64
-	_ = db.Count(&total).Error
 
 	return records, uint(total), nil
 }

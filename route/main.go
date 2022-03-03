@@ -18,9 +18,10 @@ func Register(router *gin.Engine) {
 	router.Static("/storage", "storage/public")
 
 	router.Any("/ping", ping.Controller{}.Ping)
-	router.Any("/endpoint", ping.Controller{}.Endpoint, middleware.HttpPrinter(global.Log))
+	router.Any("/endpoint", middleware.HttpPrinter(global.Log), ping.Controller{}.Endpoint)
 
 	// 注册路由
 	registerAuth(router)
+	registerFile(router)
 	admin.Register(router)
 }

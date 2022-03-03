@@ -10,7 +10,7 @@ import (
 	"github.com/save95/go-utils/userutil"
 	"github.com/save95/xerror"
 	"github.com/save95/xerror/xcode"
-	"github.com/zywaited/go-common/xcopy"
+	"github.com/zywaited/xcopy"
 )
 
 type service struct {
@@ -30,7 +30,7 @@ func (s service) Paginate(_ context.Context, in *paginateRequest) ([]*entity, ui
 	}
 
 	var res []*entity
-	if err := xcopy.NewCopy().SetSource(records).CopyF(&res); nil != err {
+	if err := xcopy.Copy(&res, records); nil != err {
 		return nil, 0, xerror.Wrap(err, "data convert error")
 	}
 
@@ -38,12 +38,8 @@ func (s service) Paginate(_ context.Context, in *paginateRequest) ([]*entity, ui
 }
 
 func (s service) Create(_ context.Context, in *createRequest) (*entity, error) {
-	if len(in.Account) == 0 || in.Genre == 0 {
-		return nil, xerror.WithXCode(xcode.RequestParamError)
-	}
-
-	if len(in.Password) == 0 {
-		return nil, xerror.New("密码不能为空")
+	if err := in.Validate(); nil != err {
+		return nil, xerror.WithXCodeMessage(xcode.RequestParamError, err.Error())
 	}
 
 	// 判断重复
@@ -58,19 +54,19 @@ func (s service) Create(_ context.Context, in *createRequest) (*entity, error) {
 		return nil, xerror.Wrap(err, "生成密码失败")
 	}
 
-	ins := platform.User{
+	record := platform.User{
 		Genre:    in.Genre,
 		Account:  in.Account,
 		Avatar:   in.Avatar,
 		Password: pwd,
 		State:    1,
 	}
-	if err := udao.Create(&ins); nil != err {
+	if err := udao.Create(&record); nil != err {
 		return nil, xerror.Wrap(err, "新增失败")
 	}
 
 	var res entity
-	if err := xcopy.NewCopy().SetSource(ins).CopyF(&res); nil != err {
+	if err := xcopy.Copy(&res, record); nil != err {
 		return nil, xerror.Wrap(err, "数据转换失败")
 	}
 
@@ -112,7 +108,7 @@ func (s service) Modify(_ context.Context, id uint, in *modifyRequest) (*entity,
 	}
 
 	var res entity
-	if err := xcopy.NewCopy().SetSource(record).CopyF(&res); nil != err {
+	if err := xcopy.Copy(&res, record); nil != err {
 		return nil, xerror.Wrap(err, "数据转换失败")
 	}
 

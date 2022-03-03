@@ -12,6 +12,22 @@ type createTokenRequest struct {
 	Password string      `json:"password"`
 }
 
+func (c createTokenRequest) Validate() error {
+	if c.Genre != global.RoleAdmin && c.Genre != global.RoleUser {
+		return xerror.New("该帐号角色未开通登录权限")
+	}
+
+	if len(c.Account) == 0 || len(c.Password) == 0 {
+		return xerror.New("请填写正确的登录信息")
+	}
+
+	if len(c.Password) < 6 {
+		return xerror.New("密码 错误")
+	}
+
+	return nil
+}
+
 type changePwdRequest struct {
 	OldPassword string `json:"oldPassword"`
 	NewPassword string `json:"newPassword"`

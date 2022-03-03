@@ -1,6 +1,9 @@
 package user
 
-import "github.com/save95/go-pkg/http/types"
+import (
+	"github.com/save95/go-pkg/http/types"
+	"github.com/save95/xerror"
+)
 
 type paginateRequest struct {
 	types.SearchRequest
@@ -14,6 +17,18 @@ type createRequest struct {
 	IsBoss   bool   `json:"isBoss"`
 	Avatar   string `json:"avatar"`
 	Password string `json:"password"`
+}
+
+func (r *createRequest) Validate() error {
+	if len(r.Account) == 0 || r.Genre == 0 {
+		return xerror.New("帐号、类型 不能为空")
+	}
+
+	if len(r.Password) == 0 {
+		return xerror.New("密码不能为空")
+	}
+
+	return nil
 }
 
 type modifyRequest struct {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"server-api/global"
 	"server-api/repository/platform"
 	"server-api/repository/platform/dao"
 
@@ -23,8 +24,8 @@ func newService() *service {
 }
 
 func (s service) Login(ctx context.Context, in *createTokenRequest) (*tokenEntity, error) {
-	if in.Genre == 0 || len(in.Account) == 0 || len(in.Password) == 0 {
-		return nil, xerror.New("请填写正确的登录信息")
+	if err := in.Validate(); nil != err {
+		return nil, xerror.WithXCodeMessage(xcode.RequestParamError, err.Error())
 	}
 
 	user, err := dao.NewUser().FirstByAccount(uint8(in.Genre), in.Account)
@@ -49,10 +50,11 @@ func (s *service) makeToken(ctx context.Context, user *platform.User) (*tokenEnt
 
 	// 生成JWT TOKEN
 	token := jwt.NewToken(types.User{
-		ID:    user.ID,
-		Name:  user.Account,
-		Roles: user.Roles(),
-	})
+		ID:      user.ID,
+		Account: user.Account,
+		Name:    user.Nickname,
+		Roles:   user.Roles(),
+	}).WithSecret([]byte(global.Config.App.Secret))
 
 	tokenStr, err := token.ToString()
 	if err != nil {

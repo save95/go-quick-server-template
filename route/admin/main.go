@@ -12,11 +12,7 @@ func Register(router *gin.Engine) {
 	ra := router.Group(
 		"/admin",
 		middleware.RESTFul(global.ApiVersionLatest),
-		middleware.JWTWith(&middleware.JWTOption{
-			RoleConvert:     global.NewRole,
-			RefreshDuration: 0, // 0-不自动刷新
-			Secret:          []byte("go-quick-server-template"),
-		}),
+		middleware.JWTWith(global.JWTOption()),
 		middleware.Roles([]types.IRole{global.RoleAdmin}),
 	)
 

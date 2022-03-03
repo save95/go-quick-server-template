@@ -3,6 +3,21 @@ Golang 服务端模版
 
 ## 目录说明
 
+## Usage
+
+```shell
+git clone --depth=1 -b main https://github.com/save95/go-quick-server-template.git server-api
+
+cd server-api
+rm -rf .git
+
+git init --initial-branch=main
+git remote add origin https://xxxxxx
+git add .
+git commit -m "init"
+git push -u origin main
+```
+
 ### swagger 
 
 先使用以下命令安装 `swag` 命令
