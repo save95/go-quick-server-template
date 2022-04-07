@@ -8,6 +8,8 @@ import (
 	"gorm.io/gorm"
 )
 
+var version = "v1.1.0"
+
 var (
 	Config projectConfig
 	Log    xlog.XLogger

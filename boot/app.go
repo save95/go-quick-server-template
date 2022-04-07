@@ -2,10 +2,12 @@ package boot
 
 import (
 	"context"
+
 	"server-api/boot/config"
 	"server-api/boot/db"
 	"server-api/boot/http"
 	"server-api/boot/job"
+	"server-api/boot/listener"
 	"server-api/boot/logger"
 	"server-api/global"
 
@@ -34,6 +36,7 @@ func Boot() error {
 	app := application.NewManager(global.Log)
 	app.Register(http.NewHttpServer(ctx))
 	app.Register(job.NewJobServer(ctx))
+	app.Register(listener.NewListenerServer(ctx))
 	app.Run()
 
 	return nil

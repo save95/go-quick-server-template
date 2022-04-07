@@ -23,5 +23,3 @@ require (
 	github.com/zywaited/xcopy v1.0.1-0.20220105081048-cf992328857e
 	gorm.io/gorm v1.21.12
 )
-
-replace github.com/save95/go-pkg => /Users/royee/Develop/PoeticalSoft/save95/go-pkg

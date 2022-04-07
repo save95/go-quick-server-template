@@ -2,6 +2,7 @@ package job
 
 import (
 	"context"
+
 	"server-api/app/job/example"
 	"server-api/global"
 
@@ -32,10 +33,11 @@ func (s *server) Start() error {
 		return nil
 	}
 
+	wrapper := job.NewWrapper().WithLog(global.Log)
 	global.Log.Infof("job server starting...")
 
 	// 每10分钟，执行一次
-	s.c.AddJob("*/10 * * * *", job.CronWrapper(example.NewSimpleJob()))
+	s.c.AddJob("*/10 * * * *", wrapper.Cron(example.NewSimpleJob()))
 
 	s.c.Start()
 	global.Log.Infof("job server started")

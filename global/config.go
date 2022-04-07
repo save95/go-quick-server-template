@@ -2,15 +2,16 @@ package global
 
 // 项目配置
 type projectConfig struct {
-	Log           logConfig    // 日志配置
-	Server        serverConfig // 服务配置
-	Database      dBConfig     // 数据库配置
-	ElasticSearch esConfig     // es配置
-	Locker        lockerConfig // locker 配置
-	Cache         cacheConfig  // cache 配置
-	Redis         redisConfig  // redis 配置
-	App           appConfig    // App
-	Job           jobConfig    // JOB
+	Log           logConfig      // 日志配置
+	Server        serverConfig   // 服务配置
+	Database      dBConfig       // 数据库配置
+	ElasticSearch esConfig       // es配置
+	Locker        lockerConfig   // locker 配置
+	Cache         cacheConfig    // cache 配置
+	Redis         redisConfig    // redis 配置
+	App           appConfig      // App
+	Job           jobConfig      // JOB
+	Listener      listenerConfig // Listener
 }
 
 type logConfig struct {
@@ -41,6 +42,10 @@ type appConfig struct {
 }
 
 type jobConfig struct {
+	Enable bool // 是否启用
+}
+
+type listenerConfig struct {
 	Enable bool // 是否启用
 }
 

@@ -1,7 +1,7 @@
 package example
 
 import (
-	"log"
+	"server-api/global"
 
 	"github.com/save95/go-pkg/job"
 )
@@ -14,7 +14,7 @@ func NewSimpleJob() job.IJob {
 }
 
 func (s simpleJob) Run() error {
-	log.Println("example simple job, only print")
+	global.Log.Debug("example simple job, only print")
 
 	return nil
 }
