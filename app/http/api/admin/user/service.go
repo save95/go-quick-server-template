@@ -19,7 +19,7 @@ type service struct {
 func (s service) Paginate(_ context.Context, in *paginateRequest) ([]*entity, uint, error) {
 	records, total, err := dao.NewUser().Paginate(pager.Option{
 		Start: int(in.Start),
-		Limit: int(in.Limit),
+		Limit: int(in.GetLimit()),
 		Filter: pager.Filter{
 			"account": in.Account,
 		},

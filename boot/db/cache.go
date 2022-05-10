@@ -21,7 +21,7 @@ func initCache() error {
 
 	// 获得不同驱动的存储
 	var stored store.StoreInterface
-	switch global.Config.Locker.Drive {
+	switch global.Config.Cache.Drive {
 	case "redis":
 		cnf := global.Config.Cache.Redis
 		if len(cnf.Addr) == 0 || !strings.Contains(cnf.Addr, ":") {
