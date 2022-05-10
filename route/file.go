@@ -15,7 +15,7 @@ func registerFile(rg *gin.Engine) {
 	v1 := rg.Group(
 		"/file",
 		middleware.RESTFul(global.ApiVersionLatest),
-		middleware.JWTWith(global.JWTOption()),
+		middleware.JWTWith(global.JWTOption(false)),
 		middleware.Roles([]types.IRole{global.RoleUser}),
 	)
 	{

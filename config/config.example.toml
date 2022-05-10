@@ -48,6 +48,16 @@ http_log_only_error = true
     log_mode    = true
     max_life_time = 30
 
+[redis]
+enable = true
+addr   = "127.0.0.1:6379"
+auth   = ""
+db     = 0
+idle   = 100
+active = 10
+wait   = true
+connect_timeout = 3000
+
 [cache]
 # 是否启用缓存
 enabled = false

@@ -24,7 +24,7 @@ func registerAuth(router *gin.Engine) {
 		// 修改密码
 		ra.PUT(
 			"/passwords",
-			middleware.JWTWith(global.JWTOption()),
+			middleware.JWTWith(global.JWTOption(false)),
 			middleware.Roles([]types.IRole{global.RoleUser}),
 			api.ChangePwd,
 		)

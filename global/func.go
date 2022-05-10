@@ -35,10 +35,19 @@ func CORSConfig() cors.Config {
 	}
 }
 
-func JWTOption() *middleware.JWTOption {
-	return &middleware.JWTOption{
+func JWTOption(refresh bool) *middleware.JWTOption {
+	opt := &middleware.JWTOption{
 		RoleConvert:     NewRole,
 		RefreshDuration: 0, // 0-不自动刷新
 		Secret:          []byte(Config.App.Secret),
 	}
+
+	refreshDuration := time.Duration(0)
+	if refresh {
+		refreshDuration = 12 * time.Hour
+	}
+
+	opt.RefreshDuration = refreshDuration
+
+	return opt
 }
