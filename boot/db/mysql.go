@@ -7,6 +7,11 @@ import (
 )
 
 func initMysql() error {
+	if !global.Config.Database.Enabled {
+		global.Log.Debug("database disabled, skip")
+		return nil
+	}
+
 	var err error
 	dbc := global.Config.Database.Platform
 	global.DbPlatform, err = dbutil.Connect(&dbutil.Option{
