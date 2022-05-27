@@ -16,7 +16,7 @@ type server struct {
 
 func NewListenerServer(ctx context.Context) *server {
 	var c []listener.IConsumer
-	if global.Config.Listener.Enable {
+	if global.Config.Listener.Enabled {
 		c = make([]listener.IConsumer, 0)
 	}
 

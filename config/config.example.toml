@@ -40,6 +40,10 @@ http_log = true
 http_log_only_error = true
 
 [database]
+# 是否启用数据库
+enabled = true
+# 是否自动迁移基础表
+auto_migrate = true
     [database.platform]
     type        = "mysql"
     dsn         = "user:password@tcp(ip:prot)/database?charset=utf8mb4&parseTime=true&loc=Local"
@@ -49,13 +53,13 @@ http_log_only_error = true
     max_life_time = 30
 
 [redis]
-enable = true
-addr   = "127.0.0.1:6379"
-auth   = ""
-db     = 0
-idle   = 100
-active = 10
-wait   = true
+enabled = true
+addr    = "127.0.0.1:6379"
+auth    = ""
+db      = 0
+idle    = 100
+active  = 10
+wait    = true
 connect_timeout = 3000
 
 [cache]
@@ -78,8 +82,8 @@ drive = "redis"
 
 [job]
 # 是否启用
-enable = false
+enabled = false
 
 [listener]
 # 是否启用
-enable = false
+enabled = false

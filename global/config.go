@@ -42,14 +42,17 @@ type appConfig struct {
 }
 
 type jobConfig struct {
-	Enable bool // 是否启用
+	Enabled bool // 是否启用
 }
 
 type listenerConfig struct {
-	Enable bool // 是否启用
+	Enabled bool // 是否启用
 }
 
 type dBConfig struct {
+	Enabled     bool // 是否启用
+	AutoMigrate bool `toml:"auto_migrate"`
+
 	Platform dBConnectConfig `toml:"platform"`
 }
 
@@ -63,9 +66,9 @@ type dBConnectConfig struct {
 }
 
 type esConfig struct {
-	Urls        []string
-	SniffEnable bool
-	DebugEnable bool
+	Urls         []string
+	SniffEnabled bool
+	DebugEnabled bool
 }
 
 type lockerConfig struct {

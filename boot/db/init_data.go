@@ -12,6 +12,11 @@ type dataBuilder struct {
 }
 
 func (id dataBuilder) Init() error {
+	if !global.Config.Database.AutoMigrate {
+		global.Log.Debug("database auto migrate disabled, skip")
+		return nil
+	}
+
 	if err := id.migrate(); nil != err {
 		return err
 	}

@@ -18,7 +18,7 @@ type server struct {
 
 func NewJobServer(ctx context.Context) *server {
 	var c *cron.Cron
-	if global.Config.Job.Enable {
+	if global.Config.Job.Enabled {
 		c = cron.New()
 	}
 
