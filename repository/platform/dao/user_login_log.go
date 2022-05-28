@@ -26,7 +26,7 @@ func NewUserLoginLog(options ...interface{}) *userLoginLog {
 	}
 
 	if impl.db == nil {
-		impl.db = global.DbPlatform
+		impl.db, _ = global.Database().Get("platform")
 	}
 
 	return &impl

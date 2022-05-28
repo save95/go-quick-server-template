@@ -5,7 +5,6 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/save95/go-utils/locker"
 	"github.com/save95/xlog"
-	"gorm.io/gorm"
 )
 
 var version = "v1.1.0"
@@ -16,8 +15,6 @@ var (
 )
 
 var (
-	DbPlatform *gorm.DB
-
 	RedisClient *redis.Client
 )
 

@@ -44,6 +44,15 @@ http_log_only_error = true
 enabled = true
 # 是否自动迁移基础表
 auto_migrate = true
+    [[database.connects]]
+    name        = "platform"
+    type        = "mysql"
+    dsn         = "user:password@tcp(ip:prot)/database?charset=utf8mb4&parseTime=true&loc=Local"
+    max_idle    = 10
+    max_open    = 100
+    log_mode    = true
+    max_life_time = 30
+
     [database.platform]
     type        = "mysql"
     dsn         = "user:password@tcp(ip:prot)/database?charset=utf8mb4&parseTime=true&loc=Local"

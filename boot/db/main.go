@@ -3,8 +3,8 @@ package db
 import "github.com/pkg/errors"
 
 func Connect() error {
-	if err := initMysql(); nil != err {
-		return errors.Wrap(err, "mysql init failed")
+	if err := connect(); nil != err {
+		return errors.Wrap(err, "database init failed")
 	}
 
 	// 初始化数据

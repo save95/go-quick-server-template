@@ -53,10 +53,13 @@ type dBConfig struct {
 	Enabled     bool // 是否启用
 	AutoMigrate bool `toml:"auto_migrate"`
 
+	Connects []dBConnectConfig `toml:"connects"`
+
 	Platform dBConnectConfig `toml:"platform"`
 }
 
 type dBConnectConfig struct {
+	Name        string // 连接名称
 	Dsn         string // 连接
 	Driver      string `toml:"type"`          // 数据库类型
 	MaxIdle     int    `toml:"max_idle"`      // 最大空闲连接数

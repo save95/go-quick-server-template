@@ -29,7 +29,7 @@ func initSqlite() error {
 
 	connectStr := fmt.Sprintf("%s?charset=utf8mb4&parseTime=true&loc=Local", filename)
 	dbc := global.Config.Database.Platform
-	global.DbPlatform, err = dbutil.Connect(&dbutil.Option{
+	dbPlatform, err := dbutil.Connect(&dbutil.Option{
 		Name: "platform",
 		Config: &dbutil.ConnectConfig{
 			Dsn:         connectStr,
@@ -43,6 +43,9 @@ func initSqlite() error {
 	})
 	if nil != err {
 		return errors.Wrap(err, "open db connect failed")
+	}
+	if err := global.Database().Register("platform", dbPlatform); nil != err {
+		return err
 	}
 
 	return nil

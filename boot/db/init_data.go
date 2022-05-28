@@ -29,12 +29,22 @@ func (id dataBuilder) Init() error {
 }
 
 func (id dataBuilder) migrate() error {
-	return global.DbPlatform.AutoMigrate(
+	dbPlatform, err := global.Database().Get("platform")
+	if nil != err {
+		return err
+	}
+
+	return dbPlatform.AutoMigrate(
 		&platform.User{}, &platform.UserLoginLog{},
 	)
 }
 
 func (id dataBuilder) initUser() error {
+	dbPlatform, err := global.Database().Get("platform")
+	if nil != err {
+		return err
+	}
+
 	admin := global.Config.App.Admin
 	if len(admin.Account) == 0 || len(admin.Password) < 6 {
 		return errors.New("account or password error")
@@ -46,7 +56,7 @@ func (id dataBuilder) initUser() error {
 	}
 
 	// 初始化用户
-	global.DbPlatform.FirstOrCreate(&platform.User{
+	dbPlatform.FirstOrCreate(&platform.User{
 		ID:       1,
 		Genre:    uint8(global.RoleAdmin),
 		Account:  admin.Account,

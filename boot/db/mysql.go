@@ -14,7 +14,7 @@ func initMysql() error {
 
 	var err error
 	dbc := global.Config.Database.Platform
-	global.DbPlatform, err = dbutil.Connect(&dbutil.Option{
+	dbPlatform, err := dbutil.Connect(&dbutil.Option{
 		Name: "platform",
 		Config: &dbutil.ConnectConfig{
 			Dsn:         dbc.Dsn,
@@ -27,6 +27,9 @@ func initMysql() error {
 		Logger: global.Log,
 	})
 	if err != nil {
+		return err
+	}
+	if err := global.Database().Register("platform", dbPlatform); nil != err {
 		return err
 	}
 
