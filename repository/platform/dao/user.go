@@ -110,11 +110,26 @@ func (u *user) Paginate(option pager.Option) ([]*platform.User, uint, error) {
 	_ = db.Count(&total).Error
 
 	var records []*platform.User
-	if err := db.Order("id DESC").
+	if err := u.order(db, option.Sorters).Order("id DESC").
 		Offset(option.Start).Limit(option.GetLimit()).
 		Find(&records).Error; nil != err {
 		return nil, 0, xerror.WrapWithXCode(err, xcode.DBFailed)
 	}
 
 	return records, uint(total), nil
+}
+
+func (u *user) order(db *gorm.DB, sorters []pager.Sorter) *gorm.DB {
+	if sorters == nil {
+		return db
+	}
+
+	for _, sorter := range sorters {
+		switch sorter.Field {
+		case "created_at":
+			db = db.Order(fmt.Sprintf("%s %s", sorter.Field, sorter.Sorted))
+		}
+	}
+
+	return db
 }

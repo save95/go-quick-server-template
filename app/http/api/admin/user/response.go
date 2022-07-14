@@ -1,7 +1,10 @@
 package user
 
+import "github.com/save95/go-pkg/http/types"
+
 type entity struct {
-	ID          uint   `json:"id" copy:"ID"`
+	types.ResponseModel
+
 	Genre       uint8  `json:"genre"`
 	Account     string `json:"account"`
 	IsBoss      bool   `json:"isBoss"`
@@ -11,6 +14,4 @@ type entity struct {
 	LastLoginAt string `json:"lastLoginAt"`
 	LastLoginIp string `json:"lastLoginIp"`
 	DriverNo    string `json:"driverNo"`
-	CreatedAt   string `json:"createdAt"`
-	UpdatedAt   string `json:"updatedAt"`
 }

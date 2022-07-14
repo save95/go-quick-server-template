@@ -53,9 +53,10 @@ auto_migrate = true
     log_mode    = true
     max_life_time = 30
 
-    [database.platform]
-    type        = "mysql"
-    dsn         = "user:password@tcp(ip:prot)/database?charset=utf8mb4&parseTime=true&loc=Local"
+    [[database.connects]]
+    name        = "localPlatform"
+    type        = "sqlit"
+    dsn         = "config/main.db?charset=utf8mb4&parseTime=true&loc=Local"
     max_idle    = 10
     max_open    = 100
     log_mode    = true

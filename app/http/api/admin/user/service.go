@@ -23,7 +23,7 @@ func (s service) Paginate(_ context.Context, in *paginateRequest) ([]*entity, ui
 		Filter: pager.Filter{
 			"account": in.Account,
 		},
-		Sorters: nil,
+		Sorters: pager.ParseSorts(in.Sort),
 	})
 	if nil != err {
 		return nil, 0, err

@@ -31,6 +31,15 @@ go get -u github.com/swaggo/swag/cmd/swag
 
 ## 编译
 
+因使用了 `https://github.com/mattn/go-sqlite3` 包需要启用 CGO 编译
+
+```shell
+# https://github.com/FiloSottile/homebrew-musl-cross
+
+brew install filosottile/musl-cross/musl-cross
+
+```
+
 ```shell
 make build
 

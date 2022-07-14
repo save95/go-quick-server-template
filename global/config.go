@@ -54,8 +54,6 @@ type dBConfig struct {
 	AutoMigrate bool `toml:"auto_migrate"`
 
 	Connects []dBConnectConfig `toml:"connects"`
-
-	Platform dBConnectConfig `toml:"platform"`
 }
 
 type dBConnectConfig struct {
