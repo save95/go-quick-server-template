@@ -2,8 +2,17 @@ package global
 
 // 项目配置
 type projectConfig struct {
+	Server struct {
+		AppID string `toml:"app_id"`
+		Addr  string `toml:"addr"`
+		Host  string `toml:"host"`
+
+		Swagger struct {
+			Enabled bool // 是否启用 Swagger
+		} // Swagger 配置
+	} `toml:"server"` // 服务配置
+
 	Log           logConfig      // 日志配置
-	Server        serverConfig   // 服务配置
 	Database      dBConfig       // 数据库配置
 	ElasticSearch esConfig       // es配置
 	Locker        lockerConfig   // locker 配置
@@ -21,16 +30,6 @@ type logConfig struct {
 	StdPrint         bool   `toml:"std_print"`           // 是否打印到控制台
 	HttpLog          bool   `toml:"http_log"`            // 是否打印 http 日志
 	HttpLogOnlyError bool   `toml:"http_log_only_error"` // 是否仅打印 http 错误日志
-}
-
-type serverConfig struct {
-	Addr    string        `toml:"addr"`
-	Swagger swaggerConfig // Swagger 配置
-}
-
-type swaggerConfig struct {
-	// 是否启用 Swagger
-	Enabled bool
 }
 
 type appConfig struct {

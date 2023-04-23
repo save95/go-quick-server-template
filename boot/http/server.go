@@ -34,6 +34,15 @@ func (s *server) Start() error {
 	// 注册全局中间件。注意顺序不要随意调整
 	r.Use(gin.Recovery())
 	r.Use(cors.New(global.CORSConfig()))
+	r.Use(middleware.XSSFilter(
+		//middleware.XSSDebug(),
+		middleware.XSSGlobalPolicy(middleware.XSSPolicyStrict),
+		middleware.XSSGlobalSkipFields("password"),
+		middleware.XSSRoutePolicy("admin", middleware.XSSPolicyUGC),
+		middleware.XSSRoutePolicy("/callback/", middleware.XSSPolicyNone),
+		middleware.XSSRoutePolicy("/endpoint", middleware.XSSPolicyNone),
+		middleware.XSSRoutePolicy("/ping", middleware.XSSPolicyNone),
+	))
 	r.Use(middleware.HttpContext())
 	//r.Use(middleware.RESTFul(global.ApiVersionLatest))
 	//r.Use(middleware.Log())

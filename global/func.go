@@ -29,7 +29,7 @@ func CORSConfig() cors.Config {
 		ExposeHeaders: []string{
 			"Authorization", "Content-MD5",
 			// 分页响应头
-			"Link", "X-More-Resource", "X-Pagination-Info", "X-Total-Count",
+			"Link", "X-More-Resource", "X-Pagination-Info", "X-Total-Count", "X-Error-Code",
 		},
 		MaxAge: 12 * time.Hour,
 	}

@@ -1,6 +1,10 @@
 [server]
+# 服务名
+app_id = ""
 # 服务监听地址和端口
 addr = "0.0.0.0:8002"
+# 服务域名
+host = ""
     # Swagger 配置
     [server.swagger]
     # 是否启用，正式环境请设置为 false

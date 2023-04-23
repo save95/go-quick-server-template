@@ -19,7 +19,7 @@ type User struct {
 	Password    string `gorm:"not null;size:128"`
 	State       int8   `gorm:"not null;default:0"`
 	LastLoginAt *time.Time
-	LastLoginIP string `gorm:"not null;size:32"`
+	LastLoginIP string `gorm:"size:32"`
 	DriverNo    string `gorm:"not null;size:32;default:''"`
 
 	CreatedAt time.Time      `gorm:"not null;default:current_timestamp"`
