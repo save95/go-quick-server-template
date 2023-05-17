@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"server-api/global"
@@ -11,7 +12,6 @@ import (
 	"github.com/save95/go-pkg/framework/dbcache"
 	"github.com/save95/go-pkg/model/pager"
 	"github.com/save95/xerror"
-	"github.com/zywaited/xcopy"
 )
 
 type user struct {
@@ -25,17 +25,20 @@ func NewUser() *user {
 }
 
 func (s *user) Paginate(ctx context.Context, opt pager.Option) ([]*platform.User, uint, error) {
-	data, err := dbcache.NewDefault(s.name, global.CacheManager).
-		WithExpiration(10*time.Minute). // 默认5分钟过去，这里重新修改为10分钟过期
+	key := s.name
+	data, err := dbcache.NewDefault(key, global.CacheManager).
+		WithExpiration(time.Hour). // 默认5分钟，改成1小时缓存
 		Paginate(ctx, opt, func() (interface{}, uint, error) {
+			// 原始方法
 			return dao.NewUser().Paginate(opt)
 		})
 	if nil != err {
 		return nil, 0, err
 	}
 
+	// 解码
 	var res []*platform.User
-	if err := xcopy.Copy(&res, data.Data); nil != err {
+	if err := json.Unmarshal(data.DataBytes, &res); nil != err {
 		return nil, 0, xerror.Wrap(err, "data convert error")
 	}
 
@@ -47,16 +50,20 @@ func (s *user) First(ctx context.Context, id uint) (*platform.User, error) {
 		return nil, xerror.New("id error")
 	}
 
-	data, err := dbcache.NewDefault(s.name, global.CacheManager).
+	key := s.name
+	data, err := dbcache.NewDefault(key, global.CacheManager).
+		WithExpiration(time.Hour). // 默认5分钟，改成1小时缓存
 		First(ctx, id, func() (interface{}, error) {
+			// // 原始方法
 			return dao.NewUser().First(id)
 		})
 	if nil != err {
 		return nil, err
 	}
 
+	// 解码
 	var res platform.User
-	if err := xcopy.Copy(&res, data); nil != err {
+	if err := json.Unmarshal([]byte(data), &res); nil != err {
 		return nil, xerror.Wrap(err, "data convert error")
 	}
 
