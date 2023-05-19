@@ -1,9 +1,12 @@
 package config
 
 import (
+	"os"
 	"strings"
 
 	"server-api/global"
+
+	"github.com/save95/xerror"
 
 	"github.com/BurntSushi/toml"
 	"github.com/pkg/errors"
@@ -11,22 +14,42 @@ import (
 	"github.com/save95/go-utils/fsutil"
 )
 
-func Init() error {
-	// 如果文件不存在，自动复制
-	filename := strings.ReplaceAll(constant.ExampleConfigFilename, ".example.", ".")
-	if !fsutil.Exist(filename) {
-		if !fsutil.Exist(constant.ExampleConfigFilename) {
-			return errors.New("配置模板文件不存在")
-		}
+func Init(filename string) error {
+	localname := strings.ReplaceAll(constant.ExampleConfigFilename, ".example.", ".")
+	if len(filename) == 0 {
+		// 如果文件不存在，自动复制
+		if !fsutil.Exist(localname) {
+			if !fsutil.Exist(constant.ExampleConfigFilename) {
+				return errors.New("配置模板文件不存在")
+			}
 
-		if _, err := fsutil.Copy(constant.ExampleConfigFilename, filename); nil != err {
-			return errors.Wrap(err, "初始化db文件失败")
+			if _, err := fsutil.Copy(constant.ExampleConfigFilename, localname); nil != err {
+				return errors.Wrap(err, "初始化db文件失败")
+			}
+		}
+	} else {
+		// 如果是远程连接，则从远程下载
+		if strings.HasPrefix(filename, "https://") {
+			if err := fsutil.Download(localname, filename); nil != err {
+				return xerror.Wrapf(err, "get config from remote failed, url=%s", filename)
+			}
+		} else {
+			localname = filename
 		}
 	}
 
-	_, err := toml.DecodeFile(filename, &global.Config)
+	_, err := toml.DecodeFile(localname, &global.Config)
 	if err != nil {
 		return err
 	}
+
+	// 清理配置
+	if global.Config.App.ClearExampleFile {
+		_ = os.Remove(constant.ExampleConfigFilename)
+	}
+	if global.Config.App.ClearConfigFile {
+		_ = os.Remove(localname)
+	}
+
 	return nil
 }

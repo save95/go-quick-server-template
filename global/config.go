@@ -2,57 +2,80 @@ package global
 
 // 项目配置
 type projectConfig struct {
+	// 服务配置
 	Server struct {
 		AppID string `toml:"app_id"`
 		Addr  string `toml:"addr"`
 		Host  string `toml:"host"`
 
+		// Swagger 配置
 		Swagger struct {
 			Enabled bool // 是否启用 Swagger
-		} // Swagger 配置
-	} `toml:"server"` // 服务配置
+		}
+	} `toml:"server"`
 
-	Log           logConfig      // 日志配置
-	Database      dBConfig       // 数据库配置
-	ElasticSearch esConfig       // es配置
-	Locker        lockerConfig   // locker 配置
-	Cache         cacheConfig    // cache 配置
-	Redis         redisConfig    // redis 配置
-	App           appConfig      // App
-	Job           jobConfig      // JOB
-	Listener      listenerConfig // Listener
-}
+	// 日志配置
+	Log struct {
+		Dir              string // 存储目录路径
+		Category         string // 日志分类目录
+		Level            string // 日志级别
+		StdPrint         bool   `toml:"std_print"`           // 是否打印到控制台
+		HttpLog          bool   `toml:"http_log"`            // 是否打印 http 日志
+		HttpLogOnlyError bool   `toml:"http_log_only_error"` // 是否仅打印 http 错误日志
+	}
 
-type logConfig struct {
-	Dir              string // 存储目录路径
-	Category         string // 日志分类目录
-	Level            string // 日志级别
-	StdPrint         bool   `toml:"std_print"`           // 是否打印到控制台
-	HttpLog          bool   `toml:"http_log"`            // 是否打印 http 日志
-	HttpLogOnlyError bool   `toml:"http_log_only_error"` // 是否仅打印 http 错误日志
-}
+	// 数据库配置
+	Database struct {
+		Enabled     bool // 是否启用
+		AutoMigrate bool `toml:"auto_migrate"`
 
-type appConfig struct {
-	Env              string         // 系统环境: prod/production-生产环境，local-本地环境
-	ClearExampleFile bool           `toml:"clear_example_file"` // 是否自动删除样例文件
-	Secret           string         // 密钥：jwt 认证等
-	Resource         resourceConfig // 资源配置
-	Admin            adminConfig    // 管理后台配置
-}
+		Connects []dBConnectConfig `toml:"connects"`
+	}
 
-type jobConfig struct {
-	Enabled bool // 是否启用
-}
+	// es配置
+	ElasticSearch struct {
+		Urls         []string
+		SniffEnabled bool
+		DebugEnabled bool
+	}
 
-type listenerConfig struct {
-	Enabled bool // 是否启用
-}
+	// locker 配置
+	Locker struct {
+		Enabled bool
+		Drive   string
+		Redis   redisConfig
+	}
 
-type dBConfig struct {
-	Enabled     bool // 是否启用
-	AutoMigrate bool `toml:"auto_migrate"`
+	// cache 配置
+	Cache struct {
+		Enabled bool
+		Drive   string
+		Redis   redisConfig
+	}
 
-	Connects []dBConnectConfig `toml:"connects"`
+	// redis 配置
+	Redis redisConfig
+
+	// App 配置
+	App struct {
+		Env              string // 系统环境: prod/production-生产环境，local-本地环境
+		ClearExampleFile bool   `toml:"clear_example_file"` // 是否自动删除样例文件
+		ClearConfigFile  bool   `toml:"clear_config_file"`  // 启动后是否自动删除配置文件
+		Secret           string // 密钥：jwt 认证等
+
+		// 资源配置
+		Resource struct {
+			Host           string // 资源域名
+			Path           string // 资源上传目录
+			ExaminationDir string `toml:"examination_dir"` // 教务资源存储目录
+		}
+
+		// 管理后台配置
+		Admin struct {
+			Account  string // 管理员帐号
+			Password string // 管理员密码
+		}
+	}
 }
 
 type dBConnectConfig struct {
@@ -65,42 +88,13 @@ type dBConnectConfig struct {
 	MaxLifeTime int    `toml:"max_life_time"` // 连接存活时间
 }
 
-type esConfig struct {
-	Urls         []string
-	SniffEnabled bool
-	DebugEnabled bool
-}
-
-type lockerConfig struct {
-	Enabled bool
-	Drive   string
-	Redis   redisConfig
-}
-
-type cacheConfig struct {
-	Enabled bool
-	Drive   string
-	Redis   redisConfig
-}
-
 type redisConfig struct {
 	Enabled        bool
 	Addr           string // 地址
-	Password       string // 密码
+	Password       string `toml:"auth"` // 密码
 	Db             int    // 数据库
 	Idle           int    // 最大连接数
 	Active         int    // 一次性活跃
 	Wait           bool   // 是否等待空闲连接
 	ConnectTimeout int64  `toml:"connect_timeout"` // 连接超时时间， 毫秒
-}
-
-type resourceConfig struct {
-	Host           string // 资源域名
-	Path           string // 资源上传目录
-	ExaminationDir string `toml:"examination_dir"` // 教务资源存储目录
-}
-
-type adminConfig struct {
-	Account  string // 管理员帐号
-	Password string // 管理员密码
 }

@@ -15,9 +15,9 @@ import (
 	"github.com/save95/go-pkg/application"
 )
 
-func Boot() error {
+func Boot(cnf global.InitConfig) error {
 	// 加载配置
-	if err := config.Init(); nil != err {
+	if err := config.Init(cnf.ConfigFilename); nil != err {
 		return errors.Wrap(err, "parser config file failed")
 	}
 
@@ -34,9 +34,17 @@ func Boot() error {
 	ctx := context.Background()
 	// 注册 app
 	app := application.NewManager(global.Log)
-	app.Register(http.NewHttpServer(ctx))
-	app.Register(job.NewJobServer(ctx))
-	app.Register(listener.NewListenerServer(ctx))
+	for _, server := range cnf.RegisterServers {
+		switch server {
+		case global.InitServerTypeWeb:
+			app.Register(http.NewHttpServer(ctx))
+		case global.InitServerTypeJob:
+			app.Register(job.NewJobServer(ctx))
+		case global.InitServerTypeListener:
+			app.Register(listener.NewListenerServer(ctx))
+		}
+	}
+
 	app.Run()
 
 	return nil

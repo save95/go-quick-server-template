@@ -7,6 +7,8 @@ Golang 服务端模版
 
 ```shell
 git clone --depth=1 -b main https://github.com/save95/go-quick-server-template.git server-api
+#git clone --depth=1 -b develop https://github.com/save95/go-quick-server-template.git server-api
+#git clone --depth=1 -b feature/v1.0-captcha https://github.com/save95/go-quick-server-template.git server-api
 
 cd server-api
 rm -rf .git
@@ -44,3 +46,16 @@ brew install filosottile/musl-cross/musl-cross
 make build
 
 ```
+
+## 启动
+
+```shell
+
+./main
+# 等同于 ./main -config=config/config.toml -mode=all
+
+# 指定配置和应用模块
+./main -config=https://www.domain.com/app/config.toml -mode=web
+
+```
+

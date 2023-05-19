@@ -1,6 +1,6 @@
 [server]
 # 服务名
-app_id = ""
+app_id = "server-api"
 # 服务监听地址和端口
 addr = "0.0.0.0:8002"
 # 服务域名
@@ -15,6 +15,8 @@ host = ""
 env = "local"
 # 是否自动删除样例文件
 clear_example_file = true
+# 启动后是否自动删除配置文件
+clear_config_file = false
 # 密钥：jwt 认证等
 secret = "go-quick-server-template"
     # 资源配置
@@ -94,10 +96,3 @@ drive = "redis"
     addr     = "127.0.0.1:6379"
     password = ""
 
-[job]
-# 是否启用
-enabled = false
-
-[listener]
-# 是否启用
-enabled = false

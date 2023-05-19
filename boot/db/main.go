@@ -7,11 +7,6 @@ func Connect() error {
 		return errors.Wrap(err, "database init failed")
 	}
 
-	// 初始化数据
-	if err := new(dataBuilder).Init(); nil != err {
-		return errors.Wrap(err, "data builder init failed")
-	}
-
 	if err := initLocker(); nil != err {
 		return errors.Wrap(err, "locker init failed")
 	}
@@ -22,6 +17,11 @@ func Connect() error {
 
 	if err := initCache(); nil != err {
 		return errors.Wrap(err, "cache init failed")
+	}
+
+	// 初始化数据
+	if err := new(dataBuilder).Init(); nil != err {
+		return errors.Wrap(err, "data builder init failed")
 	}
 
 	return nil
