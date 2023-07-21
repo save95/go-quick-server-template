@@ -6,6 +6,7 @@ import (
 	"server-api/app/listener/example"
 	"server-api/global"
 
+	"github.com/save95/go-pkg/application"
 	"github.com/save95/go-pkg/listener"
 )
 
@@ -14,7 +15,7 @@ type server struct {
 	consumers []listener.IConsumer
 }
 
-func NewListenerServer(ctx context.Context) *server {
+func NewListenerServer(ctx context.Context) application.IApplication {
 	return &server{
 		ctx:       ctx,
 		consumers: make([]listener.IConsumer, 0),

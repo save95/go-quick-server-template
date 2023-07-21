@@ -5,10 +5,6 @@ app_id = "server-api"
 addr = "0.0.0.0:8002"
 # 服务域名
 host = ""
-    # Swagger 配置
-    [server.swagger]
-    # 是否启用，正式环境请设置为 false
-    enabled = false
 
 [app]
 # app 环境
@@ -38,6 +34,8 @@ secret = "go-quick-server-template"
 dir = "storage/logs"
 # 日志等级
 level = "info"
+# 日志格式：text-文本(默认)，json-JSON(普遍应用于云服务器)
+format = ""
 # 是否输出到控制台
 std_print = false
 # 是否打印 http 日志
@@ -84,8 +82,16 @@ enabled = false
 # 缓存驱动器
 drive = "redis"
     [cache.redis]
-    addr     = "127.0.0.1:6379"
-    password = ""
+    addr    = "127.0.0.1:6379"
+    auth    = ""
+    db      = 4
+
+[httpcache]
+# 是否启用 http 缓存
+enabled = false
+addr    = "127.0.0.1:6379"
+auth    = ""
+db      = 4
 
 [locker]
 # 是否启用分布式锁
@@ -93,6 +99,8 @@ enabled = false
 # 驱动器
 drive = "redis"
     [locker.redis]
-    addr     = "127.0.0.1:6379"
-    password = ""
+    addr    = "127.0.0.1:6379"
+    auth    = ""
+    db      = 3
+
 

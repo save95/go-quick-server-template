@@ -21,10 +21,15 @@ func init() {
 	})
 }
 
+type IDatabase interface {
+	Register(name string, dbc *gorm.DB) error
+	Get(name string) (*gorm.DB, error)
+}
+
 type databases struct {
 }
 
-func Database() *databases {
+func Database() IDatabase {
 	return &databases{}
 }
 

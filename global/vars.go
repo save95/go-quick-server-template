@@ -7,7 +7,13 @@ import (
 	"github.com/save95/xlog"
 )
 
-var version = "v1.1.0"
+var (
+	version = "v1.1.0"
+)
+
+const (
+	LangKey = "X-Use-Language"
+)
 
 var (
 	Config projectConfig

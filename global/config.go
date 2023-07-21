@@ -7,11 +7,6 @@ type projectConfig struct {
 		AppID string `toml:"app_id"`
 		Addr  string `toml:"addr"`
 		Host  string `toml:"host"`
-
-		// Swagger 配置
-		Swagger struct {
-			Enabled bool // 是否启用 Swagger
-		}
 	} `toml:"server"`
 
 	// 日志配置
@@ -19,6 +14,7 @@ type projectConfig struct {
 		Dir              string // 存储目录路径
 		Category         string // 日志分类目录
 		Level            string // 日志级别
+		Format           string // 日志格式：text-文本(默认)，json-JSON(普遍应用于云服务器)
 		StdPrint         bool   `toml:"std_print"`           // 是否打印到控制台
 		HttpLog          bool   `toml:"http_log"`            // 是否打印 http 日志
 		HttpLogOnlyError bool   `toml:"http_log_only_error"` // 是否仅打印 http 错误日志
@@ -52,6 +48,9 @@ type projectConfig struct {
 		Drive   string
 		Redis   redisConfig
 	}
+
+	// http cache 配置
+	HttpCache redisConfig `toml:"httpcache"`
 
 	// redis 配置
 	Redis redisConfig
@@ -92,7 +91,7 @@ type redisConfig struct {
 	Enabled        bool
 	Addr           string // 地址
 	Password       string `toml:"auth"` // 密码
-	Db             int    // 数据库
+	DB             int    `toml:"db"`   // 数据库
 	Idle           int    // 最大连接数
 	Active         int    // 一次性活跃
 	Wait           bool   // 是否等待空闲连接

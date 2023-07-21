@@ -5,6 +5,6 @@ type tokenEntity struct {
 	Roles        []string `json:"roles"`
 	Introduction string   `json:"introduction"`
 	ID           uint     `json:"id"`
-	Avatar       string   `json:"avatar"`
+	AvatarURL    string   `json:"avatar"`
 	Name         string   `json:"name"`
 }

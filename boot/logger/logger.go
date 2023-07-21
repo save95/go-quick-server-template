@@ -19,7 +19,14 @@ func NewLogger() xlog.XLogger {
 		path = global.Config.Log.Dir
 	}
 
-	log := logger.NewLogger(path, global.Config.Log.Category, xlog.DailyStack)
+	var log xlog.XLogger
+	switch global.Config.Log.Format {
+	case "json":
+		log = logger.NewLogger(path, global.Config.Log.Category, xlog.DailyStack, logger.WithFormat(logger.LogFormatJson))
+	default:
+		log = logger.NewLogger(path, global.Config.Log.Category, xlog.DailyStack)
+	}
+
 	log.SetStdPrint(global.Config.Log.StdPrint)
 	if len(global.Config.Log.Level) > 0 {
 		log.SetLevelByString(global.Config.Log.Level)

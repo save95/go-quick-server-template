@@ -24,5 +24,10 @@ func Connect() error {
 		return errors.Wrap(err, "data builder init failed")
 	}
 
+	// 初始化语言包
+	if err := initLang(); nil != err {
+		return errors.Wrap(err, "lang init failed")
+	}
+
 	return nil
 }

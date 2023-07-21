@@ -10,21 +10,17 @@ import (
 )
 
 type User struct {
-	ID uint `gorm:"primaryKey;autoIncrement;not null"`
+	gorm.Model
 
-	Genre       uint8  `gorm:"not null;uniqueIndex:udx_account"`
-	Account     string `gorm:"not null;size:32;uniqueIndex:udx_account"`
-	Nickname    string `gorm:"size:32;default:''"`
-	Avatar      string `gorm:"not null;size:128;default:''"`
-	Password    string `gorm:"not null;size:128"`
-	State       int8   `gorm:"not null;default:0"`
+	Genre       uint8
+	Account     string
+	Nickname    string
+	AvatarURL   string
+	Password    string
+	State       int8
 	LastLoginAt *time.Time
-	LastLoginIP string `gorm:"size:32"`
-	DriverNo    string `gorm:"not null;size:32;default:''"`
-
-	CreatedAt time.Time      `gorm:"not null;default:current_timestamp"`
-	UpdatedAt time.Time      `gorm:"not null;default:current_timestamp on update current_timestamp"`
-	DeletedAt gorm.DeletedAt `gorm:"index:idx_deleted_at"`
+	LastLoginIP string
+	DriverNo    string
 }
 
 func (u User) Roles() []types.IRole {

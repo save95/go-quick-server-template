@@ -1,8 +1,0 @@
-info:
-  contact: {}
-  description: 接口文档.
-  license: {}
-  title: server API
-  version: "1.0"
-paths: {}
-swagger: "2.0"

@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 
+	"server-api/global/ecode"
 	"server-api/repository/platform"
 	"server-api/repository/platform/dao"
 
@@ -31,7 +32,7 @@ func (s service) Paginate(_ context.Context, in *paginateRequest) ([]*entity, ui
 
 	var res []*entity
 	if err := xcopy.Copy(&res, records); nil != err {
-		return nil, 0, xerror.Wrap(err, "data convert error")
+		return nil, 0, xerror.WrapWithXCode(err, ecode.ErrorVOConverted)
 	}
 
 	return res, total, nil
@@ -39,14 +40,13 @@ func (s service) Paginate(_ context.Context, in *paginateRequest) ([]*entity, ui
 
 func (s service) Create(_ context.Context, in *createRequest) (*entity, error) {
 	if err := in.Validate(); nil != err {
-		return nil, xerror.WithXCodeMessage(xcode.RequestParamError, err.Error())
+		return nil, xerror.WrapWithXCodeStatus(err, xcode.RequestParamError)
 	}
 
 	// 判断重复
-	udao := dao.NewUser()
-	_, err := udao.FirstByAccount(in.Genre, in.Account)
+	_, err := dao.NewUser().FirstByAccount(in.Genre, in.Account)
 	if nil == err || !xerror.IsXCode(err, xcode.DBRecordNotFound) {
-		return nil, xerror.Wrap(err, "数据已存在")
+		return nil, xerror.WrapWithXCode(err, ecode.ErrorRecordExist)
 	}
 
 	pwd, err := userutil.NewHasher().Sum(in.Password)
@@ -55,43 +55,49 @@ func (s service) Create(_ context.Context, in *createRequest) (*entity, error) {
 	}
 
 	record := platform.User{
-		Genre:    in.Genre,
-		Account:  in.Account,
-		Avatar:   in.Avatar,
-		Password: pwd,
-		State:    1,
+		Genre:     in.Genre,
+		Account:   in.Account,
+		AvatarURL: in.Avatar,
+		Password:  pwd,
+		State:     1,
 	}
-	if err := udao.Create(&record); nil != err {
-		return nil, xerror.Wrap(err, "新增失败")
+	if err := dao.NewUser().Create(&record); nil != err {
+		return nil, xerror.WrapWithXCode(err, ecode.ErrorSavedData)
 	}
 
 	var res entity
 	if err := xcopy.Copy(&res, record); nil != err {
-		return nil, xerror.Wrap(err, "数据转换失败")
+		return nil, xerror.WrapWithXCode(err, ecode.ErrorVOConverted)
 	}
 
 	return &res, nil
 }
 
 func (s service) Modify(_ context.Context, id uint, in *modifyRequest) (*entity, error) {
-	idao := dao.NewUser()
-	record, err := idao.First(id)
+	if id == 0 {
+		return nil, xerror.WithXCode(ecode.ErrorBadRequest)
+	}
+	if err := in.Validate(); nil != err {
+		return nil, xerror.WrapWithXCodeStatus(err, xcode.RequestParamError)
+	}
+
+	record, err := dao.NewUser().First(id)
 	if nil != err {
-		return nil, xerror.Wrap(err, "数据错误")
+		return nil, xerror.WrapWithXCode(err, ecode.ErrorRequestData)
 	}
 
 	// 修改名称
 	if record.Account != in.Account {
 		// 判断重复
-		_, err := idao.FirstByAccount(record.Genre, in.Account)
+		_, err := dao.NewUser().FirstByAccount(record.Genre, in.Account)
 		if nil == err || !xerror.IsXCode(err, xcode.DBRecordNotFound) {
-			return nil, xerror.Wrap(err, "数据已存在")
+			return nil, xerror.WrapWithXCode(err, ecode.ErrorRecordExist)
 		}
 
 		record.Account = in.Account
 	}
 
-	record.Avatar = in.Avatar
+	record.AvatarURL = in.AvatarURL
 	record.State = in.State
 
 	// 如果密码不为空，则修改密码
@@ -103,13 +109,13 @@ func (s service) Modify(_ context.Context, id uint, in *modifyRequest) (*entity,
 		record.Password = pwd
 	}
 
-	if err := idao.Save(record); nil != err {
-		return nil, xerror.Wrap(err, "新增失败")
+	if err := dao.NewUser().Save(record); nil != err {
+		return nil, xerror.WrapWithXCode(err, ecode.ErrorSavedData)
 	}
 
 	var res entity
 	if err := xcopy.Copy(&res, record); nil != err {
-		return nil, xerror.Wrap(err, "数据转换失败")
+		return nil, xerror.WrapWithXCode(err, ecode.ErrorVOConverted)
 	}
 
 	return &res, nil

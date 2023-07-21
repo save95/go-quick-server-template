@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"server-api/global"
+	"server-api/global/ecode"
 	"server-api/repository/platform"
 	"server-api/repository/platform/dao"
 
@@ -30,23 +31,23 @@ func (s service) Login(ctx context.Context, in *createTokenRequest) (*tokenEntit
 
 	user, err := dao.NewUser().FirstByAccount(uint8(in.Genre), in.Account)
 	if err != nil {
-		return nil, xerror.Wrap(err, "账号或密码错误")
+		return nil, xerror.WrapWithXCode(err, ecode.ErrorAuthParams)
 	}
 
 	// 账号无效
 	if user.State != 1 {
-		return nil, xerror.New("账号或密码错误")
+		return nil, xerror.WithXCode(ecode.ErrorAuthParams)
 	}
 
 	// 检查密码
 	if !userutil.NewHasher().Check(in.Password, user.Password) {
-		return nil, xerror.New("账号或密码错误")
+		return nil, xerror.WithXCode(ecode.ErrorAuthParams)
 	}
 
 	return s.makeToken(ctx, user)
 }
 
-func (s *service) makeToken(ctx context.Context, user *platform.User) (*tokenEntity, error) {
+func (s service) makeToken(ctx context.Context, user *platform.User) (*tokenEntity, error) {
 
 	// 生成JWT TOKEN
 	token := jwt.NewToken(types.User{
@@ -58,7 +59,7 @@ func (s *service) makeToken(ctx context.Context, user *platform.User) (*tokenEnt
 
 	tokenStr, err := token.ToString()
 	if err != nil {
-		return nil, xerror.Wrap(err, "生成 Token 时失败")
+		return nil, xerror.WrapWithXCode(err, ecode.ErrorAuthFailed)
 	}
 
 	// 更新最后登陆时间
@@ -67,7 +68,7 @@ func (s *service) makeToken(ctx context.Context, user *platform.User) (*tokenEnt
 	user.LastLoginIP = ctx.(*gin.Context).ClientIP()
 	user.UpdatedAt = now
 	if err := dao.NewUser().Save(user); nil != err {
-		return nil, xerror.Wrap(err, "登陆失败")
+		return nil, xerror.WrapWithXCode(err, ecode.ErrorAuthFailed)
 	}
 
 	// 写登陆日志
@@ -84,24 +85,24 @@ func (s *service) makeToken(ctx context.Context, user *platform.User) (*tokenEnt
 		Roles:        user.RoleTitles(),
 		Introduction: "",
 		ID:           user.ID,
-		Avatar:       user.Avatar,
+		AvatarURL:    user.AvatarURL,
 		Name:         user.Account,
 	}, nil
 }
 
-func (s *service) ChangePwd(ctx context.Context, in *changePwdRequest) error {
+func (s service) ChangePwd(ctx context.Context, in *changePwdRequest) error {
 	if err := in.Validate(); nil != err {
 		return xerror.WithXCodeMessage(xcode.RequestParamError, err.Error())
 	}
 
-	htx, err := types.ParserHttpContext(ctx)
-	if nil != err {
-		return xerror.Wrap(err, "http context parser failed")
+	owner := global.ParseUser(ctx)
+	if owner.GetID() == 0 {
+		return xerror.WithXCode(xcode.Unauthorized)
 	}
 
-	user, err := dao.NewUser().First(htx.User().ID)
+	user, err := dao.NewUser().First(owner.ID)
 	if nil != err {
-		return xerror.Wrap(err, "用户信息错误")
+		return xerror.WrapWithXCode(err, ecode.ErrorRequestData)
 	}
 
 	if !userutil.NewHasher().Check(in.OldPassword, user.Password) {

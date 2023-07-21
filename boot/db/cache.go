@@ -31,7 +31,7 @@ func initCache() error {
 		stored = store.NewRedis(redis.NewClient(&redis.Options{
 			Addr:     global.Config.Cache.Redis.Addr,
 			Password: global.Config.Cache.Redis.Password,
-			DB:       4,
+			DB:       global.Config.Cache.Redis.DB,
 		}), nil)
 	default:
 		return xerror.New("cache drive not support")

@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"strings"
 
 	"server-api/global"
@@ -45,8 +46,11 @@ func _redisLocker() (locker.ILocker, error) {
 	client := redis.NewClient(&redis.Options{
 		Addr:     cnf.Addr,
 		Password: cnf.Password,
-		DB:       3,
+		DB:       cnf.DB,
 	})
+	if err := client.Ping(context.Background()).Err(); nil != err {
+		return nil, xerror.Wrap(err, "redis client connect failed")
+	}
 
 	return locker.NewDistributedRedisLock(client), nil
 }

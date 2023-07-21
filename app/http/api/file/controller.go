@@ -1,6 +1,9 @@
 package file
 
 import (
+	"server-api/app/service/lang"
+	"server-api/global"
+
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"
 	"github.com/save95/go-pkg/http/restful"
@@ -11,7 +14,10 @@ type Controller struct {
 }
 
 func (c Controller) UploadPublic(ctx *gin.Context) {
-	ru := restful.NewResponse(ctx)
+	ru := restful.NewResponse(
+		ctx,
+		restful.WithErrorMsgHandle(global.LangKey, lang.Handle()),
+	)
 
 	file, _ := ctx.FormFile("file")
 

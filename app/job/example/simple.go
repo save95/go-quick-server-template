@@ -9,12 +9,12 @@ import (
 type simpleJob struct {
 }
 
-func NewSimpleJob() job.IJob {
+func NewSimpleJob() job.ICommandJob {
 	return &simpleJob{}
 }
 
-func (s simpleJob) Run() error {
-	global.Log.Debug("example simple job, only print")
+func (s simpleJob) Run(args ...string) error {
+	global.Log.Debug("example simple job, only print. args=%s", args)
 
 	return nil
 }

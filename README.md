@@ -57,5 +57,8 @@ make build
 # 指定配置和应用模块
 ./main -config=https://www.domain.com/app/config.toml -mode=web
 
+# 执行一次性脚本命令
+./main -config=https://www.domain.com/app/config.toml -mode=cmd cmd.name=example-simple
+
 ```
 

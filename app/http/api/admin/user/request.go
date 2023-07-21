@@ -19,12 +19,12 @@ type createRequest struct {
 	Password string `json:"password"`
 }
 
-func (r *createRequest) Validate() error {
-	if len(r.Account) == 0 || r.Genre == 0 {
+func (in *createRequest) Validate() error {
+	if len(in.Account) == 0 || in.Genre == 0 {
 		return xerror.New("帐号、类型 不能为空")
 	}
 
-	if len(r.Password) == 0 {
+	if len(in.Password) == 0 {
 		return xerror.New("密码不能为空")
 	}
 
@@ -32,9 +32,13 @@ func (r *createRequest) Validate() error {
 }
 
 type modifyRequest struct {
-	Account  string `json:"account"`
-	IsBoss   bool   `json:"isBoss"`
-	Avatar   string `json:"avatar"`
-	Password string `json:"password"`
-	State    int8   `json:"state"`
+	Account   string `json:"account"`
+	IsBoss    bool   `json:"isBoss"`
+	AvatarURL string `json:"avatar"`
+	Password  string `json:"password"`
+	State     int8   `json:"state"`
+}
+
+func (in *modifyRequest) Validate() error {
+	return nil
 }
