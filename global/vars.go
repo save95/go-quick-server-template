@@ -8,14 +8,6 @@ import (
 )
 
 var (
-	version = "v1.1.0"
-)
-
-const (
-	LangKey = "X-Use-Language"
-)
-
-var (
 	Config projectConfig
 	Log    xlog.XLogger
 )

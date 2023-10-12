@@ -7,11 +7,11 @@ import (
 )
 
 type User struct {
-	ID uint `gorm:"primaryKey;autoIncrement;not null"`
+	ID uint `gorm:"type:INT(11) UNSIGNED NOT NULL AUTO_INCREMENT;primaryKey"`
 
 	Genre       uint8  `gorm:"not null;uniqueIndex:uk_account"`
 	Account     string `gorm:"not null;size:32;uniqueIndex:uk_account"`
-	Nickname    string `gorm:"size:32;default:''"`
+	Nickname    string `gorm:"not null;size:32;default:''"`
 	AvatarURL   string `gorm:"not null;size:128;default:''"`
 	Password    string `gorm:"not null;size:128"`
 	State       int8   `gorm:"not null;default:0"`

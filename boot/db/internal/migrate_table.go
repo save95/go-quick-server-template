@@ -1,6 +1,8 @@
 package internal
 
 import (
+	"fmt"
+
 	"server-api/boot/db/internal/platform"
 	"server-api/global"
 )
@@ -18,7 +20,20 @@ func (m *migrate) Platform() error {
 		return err
 	}
 
-	return dbPlatform.AutoMigrate(
-		&platform.User{}, &platform.UserLoginLog{}, &platform.Lang{},
-	)
+	tables := map[interface{}]string{
+		platform.FailedJob{}:    "失败系统任务记录",
+		platform.Lang{}:         "语言包",
+		platform.User{}:         "用户表",
+		platform.UserLoginLog{}: "用户登录日志",
+		platform.UserRole{}:     "用户角色",
+	}
+
+	for table, comment := range tables {
+		opt := fmt.Sprintf("COMMENT='%s'", comment)
+		if err := dbPlatform.Set("gorm:table_options", opt).AutoMigrate(table); nil != err {
+			return err
+		}
+	}
+
+	return nil
 }

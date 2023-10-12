@@ -8,7 +8,7 @@ Golang 服务端模版
 ```shell
 git clone --depth=1 -b main https://github.com/save95/go-quick-server-template.git server-api
 #git clone --depth=1 -b develop https://github.com/save95/go-quick-server-template.git server-api
-#git clone --depth=1 -b feature/v1.0-captcha https://github.com/save95/go-quick-server-template.git server-api
+#git clone --depth=1 -b feature/v1.0-captcha-dev https://github.com/save95/go-quick-server-template.git server-api
 
 cd server-api
 rm -rf .git
@@ -20,16 +20,6 @@ git commit -m "init"
 git push -u origin main
 ```
 
-### swagger 
-
-先使用以下命令安装 `swag` 命令
-
-```shell
-go get -u github.com/swaggo/swag/cmd/swag
-```
-
-- [go-swagger 注释文档](https://swaggo.github.io/swaggo.io/declarative_comments_format/api_operation.html)
-- [go-swagger 注释中文文档](https://github.com/swaggo/swag/blob/master/README_zh-CN.md)
 
 ## 编译
 
