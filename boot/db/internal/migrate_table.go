@@ -26,6 +26,7 @@ func (m *migrate) Platform() error {
 		platform.User{}:         "用户表",
 		platform.UserLoginLog{}: "用户登录日志",
 		platform.UserRole{}:     "用户角色",
+		platform.UserStat{}:     "用户统计",
 	}
 
 	for table, comment := range tables {

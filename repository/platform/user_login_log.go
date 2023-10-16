@@ -11,4 +11,10 @@ type UserLoginLog struct {
 	UserAgent string
 	IP        string
 	Referer   string
+
+	UTMSource   string
+	UTMMedium   string
+	UTMCampaign string
+	UTMTerm     string
+	UTMContent  string
 }

@@ -29,7 +29,7 @@ func (s service) Login(ctx context.Context, in *createTokenRequest) (*tokenEntit
 		return nil, xerror.WithXCodeMessage(xcode.RequestParamError, err.Error())
 	}
 
-	user, err := dao.NewUser().FirstByAccount(uint8(in.Genre), in.Account)
+	user, err := dao.NewVWUser().FirstByAccount(in.Account, "UserRoles")
 	if err != nil {
 		return nil, xerror.WrapWithXCode(err, ecode.ErrorAuthParams)
 	}
@@ -47,14 +47,19 @@ func (s service) Login(ctx context.Context, in *createTokenRequest) (*tokenEntit
 	return s.makeToken(ctx, user)
 }
 
-func (s service) makeToken(ctx context.Context, user *platform.User) (*tokenEntity, error) {
+func (s service) makeToken(ctx context.Context, user *platform.VWUser) (*tokenEntity, error) {
+
+	roles, roleTitles, err := user.Roles()
+	if nil != err {
+		return nil, err
+	}
 
 	// 生成JWT TOKEN
 	token := jwt.NewToken(types.User{
 		ID:      user.ID,
 		Account: user.Account,
 		Name:    user.Nickname,
-		Roles:   user.Roles(),
+		Roles:   roles,
 	}).WithSecret([]byte(global.Config.App.Secret))
 
 	tokenStr, err := token.ToString()
@@ -67,26 +72,34 @@ func (s service) makeToken(ctx context.Context, user *platform.User) (*tokenEnti
 	user.LastLoginAt = &now
 	user.LastLoginIP = ctx.(*gin.Context).ClientIP()
 	user.UpdatedAt = now
-	if err := dao.NewUser().Save(user); nil != err {
+	if err := dao.NewUser().Save(user.ToUser()); nil != err {
 		return nil, xerror.WrapWithXCode(err, ecode.ErrorAuthFailed)
 	}
 
 	// 写登陆日志
 	httpRequest := ctx.(*gin.Context).Request
+	header := global.ParseAPPHeader(ctx)
 	_ = dao.NewUserLoginLog().Create(&platform.UserLoginLog{
 		UserID:    user.ID,
 		UserAgent: httpRequest.UserAgent(),
 		IP:        user.LastLoginIP,
 		Referer:   httpRequest.Referer(),
+
+		UTMSource:   header.UTMSource(),
+		UTMMedium:   header.UTMMedium(),
+		UTMCampaign: header.UTMCampaign(),
+		UTMTerm:     header.UTMTerm(),
+		UTMContent:  header.UTMContent(),
 	})
 
 	return &tokenEntity{
-		AccessToken:  tokenStr,
-		Roles:        user.RoleTitles(),
-		Introduction: "",
 		ID:           user.ID,
-		AvatarURL:    user.AvatarURL,
-		Name:         user.Account,
+		AvatarURL:    user.ShowAvatarURL(),
+		Name:         user.ShowName(),
+		Introduction: "",
+		CurrentRole:  user.CurrentRole().String(),
+		Roles:        roleTitles,
+		AccessToken:  tokenStr,
 	}, nil
 }
 
@@ -100,7 +113,7 @@ func (s service) ChangePwd(ctx context.Context, in *changePwdRequest) error {
 		return xerror.WithXCode(xcode.Unauthorized)
 	}
 
-	user, err := dao.NewUser().First(owner.ID)
+	user, err := dao.NewVWUser().First(owner.ID)
 	if nil != err {
 		return xerror.WrapWithXCode(err, ecode.ErrorRequestData)
 	}
@@ -115,5 +128,5 @@ func (s service) ChangePwd(ctx context.Context, in *changePwdRequest) error {
 	}
 	user.Password = password
 
-	return dao.NewUser().Save(user)
+	return dao.NewUser().Save(user.ToUser())
 }

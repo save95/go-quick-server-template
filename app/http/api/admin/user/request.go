@@ -12,15 +12,26 @@ type paginateRequest struct {
 }
 
 type createRequest struct {
-	Genre    uint8  `json:"genre"`
-	Account  string `json:"account"`
-	IsBoss   bool   `json:"isBoss"`
-	Avatar   string `json:"avatar"`
-	Password string `json:"password"`
+	Genres   []uint8 `json:"genres"`
+	Account  string  `json:"account"`
+	IsBoss   bool    `json:"isBoss"`
+	Avatar   string  `json:"avatar"`
+	Password string  `json:"password"`
+}
+
+func (in *createRequest) GetGenres() []int8 {
+	res := make([]int8, 0)
+	for _, genre := range in.Genres {
+		if genre == 0 {
+			continue
+		}
+		res = append(res, int8(genre))
+	}
+	return res
 }
 
 func (in *createRequest) Validate() error {
-	if len(in.Account) == 0 || in.Genre == 0 {
+	if len(in.Account) == 0 || len(in.Genres) == 0 {
 		return xerror.New("帐号、类型 不能为空")
 	}
 

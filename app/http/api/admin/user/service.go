@@ -18,7 +18,7 @@ type service struct {
 }
 
 func (s service) Paginate(_ context.Context, in *paginateRequest) ([]*entity, uint, error) {
-	records, total, err := dao.NewUser().Paginate(pager.Option{
+	records, total, err := dao.NewVWUser().Paginate(pager.Option{
 		Start: int(in.Start),
 		Limit: int(in.GetLimit()),
 		Filter: pager.Filter{
@@ -44,7 +44,7 @@ func (s service) Create(_ context.Context, in *createRequest) (*entity, error) {
 	}
 
 	// 判断重复
-	_, err := dao.NewUser().FirstByAccount(in.Genre, in.Account)
+	_, err := dao.NewVWUser().FirstByAccount(in.Account)
 	if nil == err || !xerror.IsXCode(err, xcode.DBRecordNotFound) {
 		return nil, xerror.WrapWithXCode(err, ecode.ErrorRecordExist)
 	}
@@ -55,13 +55,13 @@ func (s service) Create(_ context.Context, in *createRequest) (*entity, error) {
 	}
 
 	record := platform.User{
-		Genre:     in.Genre,
 		Account:   in.Account,
 		AvatarURL: in.Avatar,
 		Password:  pwd,
 		State:     1,
 	}
-	if err := dao.NewUser().Create(&record); nil != err {
+	stat := platform.UserStat{}
+	if err := dao.NewUser().Create(in.GetGenres(), &record, &stat); nil != err {
 		return nil, xerror.WrapWithXCode(err, ecode.ErrorSavedData)
 	}
 
@@ -81,15 +81,20 @@ func (s service) Modify(_ context.Context, id uint, in *modifyRequest) (*entity,
 		return nil, xerror.WrapWithXCodeStatus(err, xcode.RequestParamError)
 	}
 
-	record, err := dao.NewUser().First(id)
+	record, err := dao.NewVWUser().First(id, "UserRoles")
 	if nil != err {
 		return nil, xerror.WrapWithXCode(err, ecode.ErrorRequestData)
+	}
+
+	roles := make([]int8, 0)
+	for _, role := range record.UserRoles {
+		roles = append(roles, int8(role.Genre))
 	}
 
 	// 修改名称
 	if record.Account != in.Account {
 		// 判断重复
-		_, err := dao.NewUser().FirstByAccount(record.Genre, in.Account)
+		_, err := dao.NewVWUser().FirstByAccount(in.Account)
 		if nil == err || !xerror.IsXCode(err, xcode.DBRecordNotFound) {
 			return nil, xerror.WrapWithXCode(err, ecode.ErrorRecordExist)
 		}
@@ -109,7 +114,7 @@ func (s service) Modify(_ context.Context, id uint, in *modifyRequest) (*entity,
 		record.Password = pwd
 	}
 
-	if err := dao.NewUser().Save(record); nil != err {
+	if err := dao.NewUser().Update(record.ToUser(), roles); nil != err {
 		return nil, xerror.WrapWithXCode(err, ecode.ErrorSavedData)
 	}
 

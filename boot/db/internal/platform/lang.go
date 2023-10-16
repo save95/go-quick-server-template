@@ -9,7 +9,7 @@ import (
 type Lang struct {
 	ID uint `gorm:"type:INT(11) UNSIGNED NOT NULL AUTO_INCREMENT;primaryKey"`
 
-	Code int    `gorm:"not null;type:INT(11);uniqueIndex:code"`
+	Code int    `gorm:"not null;type:INT(11);comment:错误码;uniqueIndex:code"`
 	ZhCN string `gorm:"column:zh_CN;size:512"`
 	ZhHK string `gorm:"column:zh_HK;size:512"`
 	EnUS string `gorm:"column:en_US;size:512"`

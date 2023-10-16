@@ -3,6 +3,7 @@ package auth
 type tokenEntity struct {
 	AccessToken  string   `json:"accessToken"`
 	Roles        []string `json:"roles"`
+	CurrentRole  string   `json:"currentRole"`
 	Introduction string   `json:"introduction"`
 	ID           uint     `json:"id"`
 	AvatarURL    string   `json:"avatar"`

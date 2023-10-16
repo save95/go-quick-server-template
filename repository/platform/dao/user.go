@@ -1,14 +1,13 @@
 package dao
 
 import (
-	"fmt"
+	"time"
 
 	"server-api/global"
 	"server-api/repository/platform"
+	"server-api/repository/types/platformtypes"
 
-	"github.com/pkg/errors"
-
-	"github.com/save95/go-pkg/model/pager"
+	"gorm.io/gorm/clause"
 
 	"github.com/save95/xerror"
 	"github.com/save95/xerror/xcode"
@@ -34,16 +33,135 @@ func NewUser(options ...interface{}) *user {
 	return &impl
 }
 
-func (u *user) Create(record *platform.User) error {
+func (u *user) Create(genres []int8, record *platform.User, stat *platform.UserStat) error {
+	if record.ID > 0 || len(genres) == 0 {
+		return xerror.WithXCode(xcode.DBRequestParamError)
+	}
+
+	return u.db.Transaction(func(tx *gorm.DB) error {
+		// 创建用户
+		if err := tx.Create(record).Error; nil != err {
+			return xerror.WrapWithXCode(err, xcode.DBFailed)
+		}
+
+		// 写统计
+		stat.UserID = record.ID
+		if err := tx.Create(stat).Error; nil != err {
+			return xerror.WrapWithXCode(err, xcode.DBFailed)
+		}
+
+		// 写角色
+		roles := make([]*platform.UserRole, 0)
+		for _, genre := range genres {
+			roles = append(roles, &platform.UserRole{
+				Genre:  uint8(genre),
+				UserID: record.ID,
+			})
+		}
+		if err := tx.Clauses(clause.Insert{Modifier: "IGNORE"}).CreateInBatches(roles, 100).Error; nil != err {
+			return xerror.WrapWithXCode(err, xcode.DBFailed)
+		}
+
+		return nil
+	})
+}
+
+func (u *user) Update(record *platform.User, genres []int8) error {
+	if record.ID == 0 {
+		return xerror.WithXCode(xcode.DBRecordNotFound)
+	}
+
+	return u.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Save(record).Error; nil != err {
+			return xerror.WrapWithXCode(err, xcode.DBFailed)
+		}
+
+		// 清空角色
+		if err := tx.Model(platform.UserRole{}).Unscoped().
+			Where("user_id = ?").Delete(&platform.UserRole{}).Error; nil != err {
+			return xerror.WrapWithXCode(err, xcode.DBFailed)
+		}
+
+		// 写角色
+		roles := make([]*platform.UserRole, 0)
+		for _, genre := range genres {
+			roles = append(roles, &platform.UserRole{
+				Genre:  uint8(genre),
+				UserID: record.ID,
+			})
+		}
+		if err := tx.CreateInBatches(roles, 100).Error; nil != err {
+			return xerror.WrapWithXCode(err, xcode.DBFailed)
+		}
+
+		return nil
+	})
+}
+
+func (u *user) CreateAndBindThirdUser(genres []int8, record *platform.User, stat *platform.UserStat, thirdUserID uint) error {
 	if record.ID > 0 {
 		return xerror.WithXCode(xcode.DBRequestParamError)
 	}
 
-	if err := u.db.Create(record).Error; nil != err {
-		return xerror.WrapWithXCode(err, xcode.DBFailed)
-	}
+	return u.db.Transaction(func(tx *gorm.DB) error {
+		// 如果存在则更新
+		if err := tx.Where("account = ?", record.Account).
+			Assign(map[string]interface{}{
+				"nickname":   record.Nickname,
+				"password":   record.Password,
+				"deleted_at": nil, // 清空删除状态
+			}).
+			FirstOrCreate(record).Error; nil != err {
+			return xerror.WrapWithXCode(err, xcode.DBFailed)
+		}
 
-	return nil
+		// 写统计
+		stat.UserID = record.ID
+		if err := tx.FirstOrCreate(stat).Error; nil != err {
+			return xerror.WrapWithXCode(err, xcode.DBFailed)
+		}
+
+		// 写角色
+		roles := make([]*platform.UserRole, 0)
+		for _, genre := range genres {
+			roles = append(roles, &platform.UserRole{
+				Genre:  uint8(genre),
+				UserID: record.ID,
+			})
+		}
+		if err := tx.Clauses(clause.Insert{Modifier: "IGNORE"}).
+			CreateInBatches(roles, 100).Error; nil != err {
+			return xerror.WrapWithXCode(err, xcode.DBFailed)
+		}
+
+		// 绑定第三方用户
+		switch stat.FromPlatformID {
+		case platformtypes.UserFromPlatformAccount:
+			// skip
+		case platformtypes.UserFromPlatformWechat:
+			if err := tx.Model(platform.WechatUser{}).
+				Where("id = ?", thirdUserID).
+				Updates(map[string]interface{}{
+					"user_id": record.ID,
+					"bind_at": time.Now(),
+				}).Error; nil != err {
+				return xerror.WrapWithXCode(err, xcode.DBFailed)
+			}
+		case platformtypes.UserFromPlatformAlipay:
+			if err := tx.Model(platform.AlipayUser{}).
+				Where("id = ?", thirdUserID).
+				Updates(map[string]interface{}{
+					"user_id": record.ID,
+					"bind_at": time.Now(),
+				}).Error; nil != err {
+				return xerror.WrapWithXCode(err, xcode.DBFailed)
+			}
+		default:
+			return xerror.New("not support user from platform")
+		}
+
+		return nil
+	})
 }
 
 func (u *user) Save(record *platform.User) error {
@@ -56,80 +174,4 @@ func (u *user) Save(record *platform.User) error {
 	}
 
 	return nil
-}
-
-func (u *user) First(id uint) (*platform.User, error) {
-	if id == 0 {
-		return nil, xerror.WithXCode(xcode.DBRequestParamError)
-	}
-
-	var record platform.User
-	if err := u.db.Where("id = ?", id).First(&record).Error; nil != err {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, xerror.WithXCode(xcode.DBRecordNotFound)
-		}
-		return nil, xerror.WrapWithXCode(err, xcode.DBFailed)
-	}
-
-	return &record, nil
-}
-
-func (u *user) FirstByAccount(genre uint8, account string) (*platform.User, error) {
-	if genre == 0 || len(account) == 0 {
-		return nil, xerror.WithXCode(xcode.DBRequestParamError)
-	}
-
-	db := u.db.Model(platform.User{}).
-		Where("genre = ?", genre).
-		Where("account = ?", account)
-
-	var record platform.User
-	if err := db.First(&record).Error; nil != err {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, xerror.WithXCode(xcode.DBRecordNotFound)
-		}
-
-		return nil, xerror.WrapWithXCode(err, xcode.DBFailed)
-	}
-
-	return &record, nil
-}
-
-func (u *user) Paginate(option pager.Option) ([]*platform.User, uint, error) {
-	db := u.db.Model(platform.User{})
-
-	// 账号
-	if v, ok := option.Filter["account"]; ok {
-		if vv, ok := v.(string); ok && len(vv) > 0 {
-			vv = fmt.Sprintf("%%%s%%", vv)
-			db = db.Where("account like ?", vv)
-		}
-	}
-
-	var total int64
-	_ = db.Count(&total).Error
-
-	var records []*platform.User
-	if err := u.order(db, option.Sorters).Order("id DESC").
-		Offset(option.Start).Limit(option.GetLimit()).
-		Find(&records).Error; nil != err {
-		return nil, 0, xerror.WrapWithXCode(err, xcode.DBFailed)
-	}
-
-	return records, uint(total), nil
-}
-
-func (u *user) order(db *gorm.DB, sorters []pager.Sorter) *gorm.DB {
-	if sorters == nil {
-		return db
-	}
-
-	for _, sorter := range sorters {
-		switch sorter.Field {
-		case "created_at":
-			db = db.Order(fmt.Sprintf("%s %s", sorter.Field, sorter.Sorted))
-		}
-	}
-
-	return db
 }
