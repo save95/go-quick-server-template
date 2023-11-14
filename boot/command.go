@@ -16,7 +16,7 @@ func Command(cnf global.InitConfig) error {
 
 	conf := cnf.CMDConfig
 	ctx := context.Background()
-	command.NewCommand(ctx, conf.Name, conf.Timeout).Execute(conf.Args)
+	command.NewCommand(ctx, conf.Name, conf.Timeout).Execute(conf.Args...)
 
 	global.Log.Info("Command done")
 	return nil

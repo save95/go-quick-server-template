@@ -12,16 +12,17 @@ import (
 
 var (
 	flagConf, flagMode string
+	flagCMDArgs        global.FlagSlice
 	flagCMDConf        global.CMDConfig
 )
 
-func init() {
+func step() {
 	flag.StringVar(&flagConf, "conf", "config/config.toml", "config path, support remote url")
 	flag.StringVar(&flagMode, "mode", "all", "server mode: all, web, cron/cronjob, listener, cmd/command")
 
-	flag.StringVar(&flagCMDConf.Name, "cmd.name", "", "command task name, only support mode=cmd")
+	flag.StringVar(&flagCMDConf.Name, "cmd.name", "", "command task name, only support `cmd` mode")
 	flag.IntVar(&flagCMDConf.Timeout, "cmd.timeout", 0, "command task run timeout, second")
-	flag.StringVar(&flagCMDConf.Args, "cmd.args", "", "command task run args, custom string format")
+	flag.Var(&flagCMDArgs, "cmd.args", "command task run args. default use `:` split key and value, e.g., `-cmd.args=ver:v1.1028` is key=`ver`, value=`v1.1028`")
 
 	flag.Usage = func() {
 		_, _ = fmt.Fprintf(os.Stderr, "Usage: %s [OPTIONS]\n", os.Args[0])
@@ -37,6 +38,8 @@ func init() {
 // @description 接口文档.
 
 func main() {
+	step()
+
 	log.Println("launcher starting...")
 	log.Printf("launcher flags: conf=%s, mode=%s\n", flagConf, flagMode)
 
@@ -47,6 +50,9 @@ func main() {
 
 	// command 命令
 	if flagMode == "cmd" || flagMode == "command" {
+		if len(flagCMDArgs) > 0 {
+			flagCMDConf.Args = flagCMDArgs
+		}
 		cnf.CMDConfig = &flagCMDConf
 		if err := boot.Command(cnf); err != nil {
 			log.Fatalf("boot command cmd failed: %+v\n", err.Error())
