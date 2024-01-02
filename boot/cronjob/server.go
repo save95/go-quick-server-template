@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"server-api/app/job/example"
+	jobapp "server-api/app/job"
 	"server-api/global"
 	"server-api/repository/platform"
 
@@ -29,20 +29,18 @@ func NewCronjobServer(ctx context.Context) application.IApplication {
 	}
 }
 
-func (s *server) Start() error {
+func (s server) Start() error {
 	global.Log.Infof("cronjob server starting...")
 
-	// 每10分钟，执行一次
-	s.register("*/10 * * * *", example.NewSimpleJob())
-
-	// todo 其他定时脚本
+	// 注册定时脚本
+	jobapp.Register(s)
 
 	s.c.Start()
 	global.Log.Infof("cronjob server started")
 	return nil
 }
 
-func (s *server) register(spec string, cmd job.ICommandJob) {
+func (s server) Register(spec string, cmd job.ICommandJob) {
 	wrapper := job.NewCronJobWrapper(
 		job.WrapWithContext(s.ctx),
 		job.WrapWithLogger(global.Log),
@@ -60,7 +58,7 @@ func (s *server) register(spec string, cmd job.ICommandJob) {
 	return
 }
 
-func (s *server) failedSaver(jobName string, in []string, err error) {
+func (s server) failedSaver(jobName string, in []string, err error) {
 	db, derr := global.Database().Get("platform")
 	if nil != derr {
 		global.Log.Errorf("job failed saver get db failed, err=%+v", derr)
@@ -84,7 +82,7 @@ func (s *server) failedSaver(jobName string, in []string, err error) {
 	}
 }
 
-func (s *server) Shutdown() error {
+func (s server) Shutdown() error {
 	if s.c != nil {
 		global.Log.Infof("cronjob server stop")
 		s.c.Stop()

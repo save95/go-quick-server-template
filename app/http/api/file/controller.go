@@ -1,8 +1,8 @@
 package file
 
 import (
-	"server-api/app/service/lang"
 	"server-api/global"
+	"server-api/service/lang"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pkg/errors"

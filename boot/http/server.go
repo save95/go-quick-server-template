@@ -4,10 +4,9 @@ import (
 	"context"
 	"log"
 	"net/http"
-	"time"
-
+	"server-api/app/http/route"
 	"server-api/global"
-	"server-api/route"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
@@ -93,7 +92,7 @@ func (s *server) Start() error {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	// 注册路由，路由统一安置在 app/route 目录，由 main 引导
+	// 注册路由，路由统一安置在 app/http/route 目录，由 main 引导
 	route.Register(r)
 
 	global.Log.Infof("http server Listening and serving HTTP on %s", global.Config.Server.Addr)

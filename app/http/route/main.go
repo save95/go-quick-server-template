@@ -2,8 +2,8 @@ package route
 
 import (
 	"server-api/app/http/api/ping"
+	"server-api/app/http/route/admin"
 	"server-api/global"
-	"server-api/route/admin"
 
 	"github.com/save95/go-pkg/http/middleware"
 
