@@ -42,6 +42,9 @@ func Boot(cnf global.InitConfig) error {
 	ctx := context.Background()
 	// 注册 app
 	app := application.NewManager(global.Log)
+	// 注册配置文件监听器
+	app.Register(config.NewWatchServer())
+	// 注册应用服务
 	for _, server := range cnf.RegisterServers {
 		switch server {
 		case global.InitServerTypeWeb:

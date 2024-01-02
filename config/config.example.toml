@@ -13,6 +13,8 @@ env = "local"
 clear_example_file = true
 # 启动后是否自动删除配置文件
 clear_config_file = false
+# 监听配置文件变更，自动更新配置
+watch_config_enabled = false
 # 密钥：jwt 认证等
 secret = "go-quick-server-template"
     # 资源配置

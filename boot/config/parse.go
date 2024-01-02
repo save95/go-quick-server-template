@@ -1,6 +1,7 @@
 package config
 
 import (
+	"io/ioutil"
 	"os"
 	"strings"
 
@@ -8,11 +9,12 @@ import (
 
 	"github.com/save95/xerror"
 
-	"github.com/BurntSushi/toml"
 	"github.com/pkg/errors"
 	"github.com/save95/go-pkg/constant"
 	"github.com/save95/go-utils/fsutil"
 )
+
+var configFilename = ""
 
 func Init(filename string) error {
 	localname := strings.ReplaceAll(constant.ExampleConfigFilename, ".example.", ".")
@@ -38,8 +40,13 @@ func Init(filename string) error {
 		}
 	}
 
-	_, err := toml.DecodeFile(localname, &global.Config)
-	if err != nil {
+	configFilename = filename
+
+	bs, err := ioutil.ReadFile(localname)
+	if nil != err {
+		return err
+	}
+	if err := global.ParseConfig(bs); err != nil {
 		return err
 	}
 

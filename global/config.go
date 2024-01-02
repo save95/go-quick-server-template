@@ -57,10 +57,11 @@ type projectConfig struct {
 
 	// App 配置
 	App struct {
-		Env              string // 系统环境: prod/production-生产环境，local-本地环境
-		ClearExampleFile bool   `toml:"clear_example_file"` // 是否自动删除样例文件
-		ClearConfigFile  bool   `toml:"clear_config_file"`  // 启动后是否自动删除配置文件
-		Secret           string // 密钥：jwt 认证等
+		Env                string // 系统环境: prod/production-生产环境，local-本地环境
+		ClearExampleFile   bool   `toml:"clear_example_file"`   // 是否自动删除样例文件
+		ClearConfigFile    bool   `toml:"clear_config_file"`    // 启动后是否自动删除配置文件
+		WatchConfigEnabled bool   `toml:"watch_config_enabled"` // 监听配置文件变更，自动更新配置
+		Secret             string // 密钥：jwt 认证等
 
 		// 资源配置
 		Resource struct {

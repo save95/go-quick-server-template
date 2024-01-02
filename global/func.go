@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/BurntSushi/toml"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
@@ -12,6 +13,17 @@ import (
 	"github.com/save95/go-pkg/http/types"
 	"github.com/save95/xerror"
 )
+
+// ParseConfig 解析配置
+func ParseConfig(content []byte) error {
+	var cfg projectConfig
+	if _, err := toml.Decode(string(content), &cfg); nil != err {
+		return err
+	}
+
+	Config = cfg
+	return nil
+}
 
 // JWTOption JWT 相关配置
 func JWTOption(refresh bool) *jwt.Option {
