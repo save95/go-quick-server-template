@@ -6,6 +6,9 @@ import (
 
 	"github.com/save95/go-pkg/http/jwt/jwtstore"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/mojocn/base64Captcha"
+
 	"server-api/global"
 	"server-api/global/ecode"
 	"server-api/repository/platform"
@@ -31,6 +34,11 @@ func (s service) Login(ctx context.Context, in *createTokenRequest) (*tokenEntit
 		return nil, xerror.WithXCodeMessage(xcode.RequestParamError, err.Error())
 	}
 
+	// 验证码校验
+	if err := s.verifyCaptcha(ctx, in.Code); nil != err {
+		return nil, err
+	}
+
 	user, err := dao.NewVWUser().FirstByAccount(in.Account, "UserRoles")
 	if err != nil {
 		return nil, xerror.WrapWithXCode(err, ecode.ErrorAuthParams)
@@ -47,6 +55,30 @@ func (s service) Login(ctx context.Context, in *createTokenRequest) (*tokenEntit
 	}
 
 	return s.makeToken(ctx, user)
+}
+
+func (s service) verifyCaptcha(ctx context.Context, code string) error {
+	// 未开启验证码，直接返回
+	if !global.Config.App.AuthCaptchaEnabled {
+		return nil
+	}
+
+	// 获取验证码
+	session := sessions.Default(ctx.(*gin.Context))
+	captchaId := session.Get(captchaSessionKey)
+	if captchaId == nil {
+		return xerror.WithXCode(ecode.ErrorAuthCodeExpired)
+	}
+
+	// 校验验证码
+	if !base64Captcha.VerifyCaptchaAndIsClear(captchaId.(string), code, false) {
+		return xerror.WithXCode(ecode.ErrorAuthCodeInvalid)
+	}
+
+	// 清除验证码
+	session.Delete(captchaSessionKey)
+	_ = session.Save()
+	return nil
 }
 
 func (s service) makeToken(ctx context.Context, user *platform.VWUser) (*tokenEntity, error) {

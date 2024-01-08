@@ -10,6 +10,7 @@ type createTokenRequest struct {
 	Genre    global.Role `json:"genre"`
 	Account  string      `json:"account"`
 	Password string      `json:"password"`
+	Code     string      `json:"code"` // 图像验证码
 }
 
 func (in createTokenRequest) Validate() error {
@@ -23,6 +24,10 @@ func (in createTokenRequest) Validate() error {
 
 	if len(in.Password) < 6 {
 		return xerror.New("密码 错误")
+	}
+
+	if global.Config.App.AuthCaptchaEnabled && len(in.Code) == 0 {
+		return xerror.New("请填写 验证码")
 	}
 
 	return nil

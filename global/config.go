@@ -63,6 +63,7 @@ type projectConfig struct {
 		ClearConfigFile    bool   `toml:"clear_config_file"`    // 启动后是否自动删除配置文件
 		WatchConfigEnabled bool   `toml:"watch_config_enabled"` // 监听配置文件变更，自动更新配置
 		Secret             string `toml:"secret"`               // 密钥：jwt 认证等
+		AuthCaptchaEnabled bool   `toml:"auth_captcha_enabled"` // 是否开启授权认证验证码
 
 		// 资源配置
 		Resource struct {
