@@ -175,3 +175,18 @@ func (u *user) Save(record *platform.User) error {
 
 	return nil
 }
+
+func (u *user) Rest2FA(id uint, secret string) error {
+	if id == 0 || len(secret) == 0 {
+		return xerror.WithXCode(xcode.DBRecordNotFound)
+	}
+
+	if err := u.db.Model(platform.User{}).Where("id = ?", id).
+		Updates(map[string]interface{}{
+			"tfa_secret":  secret,
+			"tfa_bind_at": nil,
+		}).Error; nil != err {
+		return xerror.WrapWithXCode(err, xcode.DBFailed)
+	}
+	return nil
+}

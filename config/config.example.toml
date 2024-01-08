@@ -21,6 +21,8 @@ watch_config_enabled = false
 secret = "go-quick-server-template"
 # 授权认证验证码是否开启
 auth_captcha_enabled = false
+# 2FA 认证是否开启
+auth_2fa_enabled = false
     # 资源配置
     [app.resource]
     # 资源域名

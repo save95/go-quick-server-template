@@ -2,9 +2,17 @@ package auth
 
 import (
 	"context"
+	"crypto/md5"
+	"encoding/gob"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/save95/go-pkg/http/jwt/jwtstore"
+
+	"github.com/save95/go-utils/otputil"
+
+	"github.com/hashicorp/go-uuid"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/mojocn/base64Captcha"
@@ -54,6 +62,11 @@ func (s service) Login(ctx context.Context, in *createTokenRequest) (*tokenEntit
 		return nil, xerror.WithXCode(ecode.ErrorAuthParams)
 	}
 
+	// 2FA 验证
+	if err := s.verify2FA(ctx, user, in); nil != err {
+		return nil, err
+	}
+
 	return s.makeToken(ctx, user)
 }
 
@@ -79,6 +92,54 @@ func (s service) verifyCaptcha(ctx context.Context, code string) error {
 	session.Delete(captchaSessionKey)
 	_ = session.Save()
 	return nil
+}
+
+func (s service) verify2FA(ctx context.Context, user *platform.VWUser, in *createTokenRequest) error {
+	// 未开启 2FA 验证，直接返回
+	if !global.Config.App.Auth2FAEnabled {
+		return nil
+	}
+
+	id, _ := uuid.GenerateUUID()
+	faTokenArgs := []string{
+		in.Account,
+		in.Password,
+		global.Config.App.Secret,
+		id,
+	}
+	faToken := fmt.Sprintf("%x", md5.Sum([]byte(strings.Join(faTokenArgs, "$$$"))))
+
+	session := sessions.Default(ctx.(*gin.Context))
+	gob.Register(tfaValue{})
+	session.Set(tfaTokenSessionKey, tfaValue{
+		Account: in.Account,
+		Token:   faToken,
+	})
+	_ = session.Save()
+
+	// 2FA
+	// 如果没有绑定，则返回绑定二维码地址
+	tfaURL := ""
+	if user.TFABindAt == nil {
+		otp := otputil.NewGoogleAuth()
+		// 如果已开启 2FA，但用户未设置，则自动生成 secret
+		if len(user.TFASecret) == 0 {
+			tfaSecret := otp.GenSecret(16)
+			if err := dao.NewUser().Rest2FA(user.ID, tfaSecret); nil == err {
+				user.TFASecret = tfaSecret
+			}
+		}
+		// 已存在 secret，则生成二维码地址，并引导绑定
+		if len(user.TFASecret) > 0 {
+			tfaURL = otp.GetQRCodeContent(user.Account, global.Config.App.Name, user.TFASecret)
+		}
+	}
+
+	// 返回特定错误码
+	return xerror.WithXCode(ecode.ErrorAuthUse2FA).WithFields(map[string]interface{}{
+		"token":   faToken,
+		"bindUrl": tfaURL,
+	})
 }
 
 func (s service) makeToken(ctx context.Context, user *platform.VWUser) (*tokenEntity, error) {
@@ -135,6 +196,24 @@ func (s service) makeToken(ctx context.Context, user *platform.VWUser) (*tokenEn
 		UTMContent:  header.UTMContent(),
 	})
 
+	// 2FA
+	tfaBind := user.TFABindAt != nil
+	tfaURL := ""
+	if global.Config.App.Auth2FAEnabled && !tfaBind {
+		otp := otputil.NewGoogleAuth()
+		// 如果已开启 2FA，但用户未设置，则自动生成 secret
+		if len(user.TFASecret) == 0 {
+			tfaSecret := otp.GenSecret(16)
+			if err := dao.NewUser().Rest2FA(user.ID, tfaSecret); nil == err {
+				user.TFASecret = tfaSecret
+			}
+		}
+		// 已存在 secret，则生成二维码地址，并引导绑定
+		if len(user.TFASecret) > 0 {
+			tfaURL = otp.GetQRCodeContent(user.Account, global.Config.App.Name, user.TFASecret)
+		}
+	}
+
 	return &tokenEntity{
 		AccessToken: tokenStr,
 		ExpireTime:  int64(duration.Seconds()),
@@ -144,6 +223,8 @@ func (s service) makeToken(ctx context.Context, user *platform.VWUser) (*tokenEn
 			AvatarURL:   user.ShowAvatarURL(),
 			CurrentRole: user.CurrentRole().String(),
 			Roles:       roleTitles,
+			TFABind:     tfaBind,
+			TFAURL:      tfaURL,
 		},
 	}, nil
 }

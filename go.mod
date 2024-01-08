@@ -10,6 +10,7 @@ require (
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/go-cmp v0.5.6 // indirect
+	github.com/hashicorp/go-uuid v1.0.1
 	github.com/mattn/go-sqlite3 v2.0.1+incompatible // indirect
 	github.com/mojocn/base64Captcha v1.2.2
 	github.com/pkg/errors v0.9.1
