@@ -1,28 +1,44 @@
 package route
 
 import (
-	"server-api/app/http/internal/helper"
-
-	"github.com/save95/go-pkg/http/jwt/jwtstore"
+	"net/http"
+	"time"
 
 	"server-api/app/http/internal/api/auth"
+	"server-api/app/http/internal/helper"
 	"server-api/global"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/save95/go-pkg/http/jwt/jwtstore"
 	"github.com/save95/go-pkg/http/middleware"
 )
 
 // RegisterAuth 注册鉴权路由
 func RegisterAuth(router *gin.Engine) {
+	sOpt := middleware.SessionOption{
+		Path:     "/",
+		MaxAge:   10 * time.Minute,
+		Secure:   false,
+		HttpOnly: true,
+		SameSite: 0,
+	}
+	// 兼容测试环境前端调试跨域 cookie 问题
+	if global.Env().IsTest() {
+		sOpt.Secure = true
+		sOpt.SameSite = http.SameSiteNoneMode
+	}
 	api := auth.Controller{}
 
 	ra := router.Group(
 		"/auth",
-		middleware.RESTFul(global.ApiVersionLatest),
+		middleware.SessionWithStore("ac", helper.SessionRedisStore(sOpt), sOpt),
 	)
 	{
+		// 获得验证码图片/音频
+		ra.GET("/captcha", api.Captcha)
 		// 创建 Token
-		ra.POST("/tokens", api.Token)
+		ra.POST("/tokens", middleware.RESTFul(global.ApiVersionLatest), api.Token)
 	}
 
 	ra2 := router.Group(
