@@ -15,6 +15,8 @@ type User struct {
 	Gender       uint8      `gorm:"not null;default:0;comment:性别"`
 	AvatarURL    string     `gorm:"not null;size:128;default:'';comment:头像地址"`
 	Password     string     `gorm:"not null;size:128;comment:密码"`
+	TFASecret    string     `gorm:"not null;size:128;default:'';comment:2FA密钥"`
+	TFABindAt    *time.Time `gorm:"comment:2FA绑定时间"`
 	State        int8       `gorm:"not null;default:0;comment:状态"`
 	LastLoginAt  *time.Time `gorm:"comment:最后登录时间"`
 	LastLoginIP  string     `gorm:"size:32;comment:最后登录IP"`

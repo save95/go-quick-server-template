@@ -26,6 +26,9 @@ type User struct {
 	LastLoginIP  string
 	LastDriverNo string
 
+	TFASecret string
+	TFABindAt *time.Time
+
 	UserRoles []*UserRole `gorm:"foreignKey:UserID"`
 }
 

@@ -33,6 +33,26 @@ func (in createTokenRequest) Validate() error {
 	return nil
 }
 
+type tfaValue struct {
+	Account string
+	Token   string
+}
+
+type tfaRequest struct {
+	FAToken string `json:"token"`
+	Code    string `json:"code"`
+}
+
+func (in tfaRequest) Validate() error {
+	if len(in.FAToken) == 0 {
+		return xerror.New("token 不能为空")
+	}
+	if len(in.Code) == 0 {
+		return xerror.New("请输入 2FA 验证码")
+	}
+	return nil
+}
+
 type changePwdRequest struct {
 	OldPassword string `json:"oldPassword"`
 	NewPassword string `json:"newPassword"`

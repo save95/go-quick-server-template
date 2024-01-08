@@ -13,4 +13,7 @@ type profileEntity struct {
 	AvatarURL   string   `json:"avatar"`
 	CurrentRole string   `json:"currentRole"`
 	Roles       []string `json:"roles"`
+
+	TFABind bool   `json:"tfaBind"`
+	TFAURL  string `json:"tfaUrl,omitempty"`
 }

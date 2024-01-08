@@ -63,6 +63,28 @@ func (c Controller) Token(ctx *gin.Context) {
 	ru.Post(token)
 }
 
+func (c Controller) TokenBy2FA(ctx *gin.Context) {
+	ru := restful.NewResponse(
+		ctx,
+		restful.WithErrorMsgHandle(global.LangKey, lang.Handle()),
+	)
+
+	var in tfaRequest
+	if err := ctx.ShouldBindJSON(&in); nil != err {
+		ru.WithError(err)
+		return
+	}
+
+	token, err := verifyService{}.TokenBy2FA(ctx, &in)
+	if err != nil {
+		ru.WithError(err)
+		return
+	}
+
+	ru.SetHeader(constant.HttpTokenHeaderKey, token.AccessToken)
+	ru.Post(token)
+}
+
 func (c Controller) Logout(ctx *gin.Context) {
 	err := newService().Logout(ctx)
 
@@ -91,4 +113,31 @@ func (c Controller) ChangePwd(ctx *gin.Context) {
 	}
 
 	ru.WithMessage("success")
+}
+
+func (c Controller) Bind2FA(ctx *gin.Context) {
+	ru := restful.NewResponse(
+		ctx,
+		restful.WithErrorMsgHandle(global.LangKey, lang.Handle()),
+	)
+
+	code := ctx.Param("code")
+	if err := (verifyService{}).Bind2FA(ctx, code); nil != err {
+		ru.WithError(err)
+		return
+	}
+
+	ru.WithMessage("success")
+}
+
+func (c Controller) Rest2FA(ctx *gin.Context) {
+	ru := restful.NewResponse(
+		ctx,
+		restful.WithErrorMsgHandle(global.LangKey, lang.Handle()),
+	)
+
+	code := ctx.Param("code")
+	err := verifyService{}.Rest2FA(ctx, code)
+
+	ru.Delete(err)
 }

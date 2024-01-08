@@ -28,6 +28,11 @@ func RegisterAuth(router *gin.Engine) {
 		sOpt.Secure = true
 		sOpt.SameSite = http.SameSiteNoneMode
 	}
+	// 2FA 登陆时，可能存在绑定流程，过期时间设置长一些
+	if global.Config.App.Auth2FAEnabled {
+		sOpt.MaxAge = 30 * time.Minute
+	}
+
 	api := auth.Controller{}
 
 	ra := router.Group(
@@ -39,6 +44,8 @@ func RegisterAuth(router *gin.Engine) {
 		ra.GET("/captcha", api.Captcha)
 		// 创建 Token
 		ra.POST("/tokens", middleware.RESTFul(global.ApiVersionLatest), api.Token)
+		// 通过 2FA 获取 Token
+		ra.POST("/tokens/by-2fa", middleware.RESTFul(global.ApiVersionLatest), api.TokenBy2FA)
 	}
 
 	ra2 := router.Group(
@@ -55,5 +62,9 @@ func RegisterAuth(router *gin.Engine) {
 		ra2.DELETE("/tokens", api.Logout)
 		// 修改密码
 		ra2.PUT("/passwords", api.ChangePwd)
+		// 绑定 2FA
+		ra2.POST("/2fas/:code", api.Bind2FA)
+		// 重置 2FA
+		ra2.DELETE("/2fas/:code", api.Rest2FA)
 	}
 }
