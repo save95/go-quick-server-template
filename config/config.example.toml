@@ -1,12 +1,14 @@
 [server]
-# 服务名
-app_id = "server-api"
 # 服务监听地址和端口
 addr = "0.0.0.0:8002"
 # 服务域名
 host = ""
 
 [app]
+# 服务标示
+id = "server-api"
+# 服务名
+name = "应用名"
 # app 环境
 env = "local"
 # 是否自动删除样例文件
@@ -80,7 +82,7 @@ connect_timeout = 3000
 
 [cache]
 # 是否启用缓存
-enabled = false
+enabled = true
 # 缓存驱动器
 drive = "redis"
     [cache.redis]

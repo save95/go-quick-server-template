@@ -34,6 +34,16 @@ func (c Controller) Token(ctx *gin.Context) {
 	ru.Post(token)
 }
 
+func (c Controller) Logout(ctx *gin.Context) {
+	err := newService().Logout(ctx)
+
+	ru := restful.NewResponse(
+		ctx,
+		restful.WithErrorMsgHandle(global.LangKey, lang.Handle()),
+	)
+	ru.Delete(err)
+}
+
 func (c Controller) ChangePwd(ctx *gin.Context) {
 	ru := restful.NewResponse(
 		ctx,

@@ -2,7 +2,6 @@ package internal
 
 import (
 	"fmt"
-
 	"server-api/boot/db/internal/platform"
 	"server-api/global"
 )
@@ -32,6 +31,16 @@ func (m *migrate) Platform() error {
 	for table, comment := range tables {
 		opt := fmt.Sprintf("COMMENT='%s'", comment)
 		if err := dbPlatform.Set("gorm:table_options", opt).AutoMigrate(table); nil != err {
+			return err
+		}
+	}
+
+	for name, sql := range views {
+		if err := dbPlatform.Exec(fmt.Sprintf(`DROP VIEW IF EXISTS %s`, name)).Error; nil != err {
+			return err
+		}
+
+		if err := dbPlatform.Exec(sql).Error; nil != err {
 			return err
 		}
 	}

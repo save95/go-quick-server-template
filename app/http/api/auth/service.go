@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/save95/go-pkg/http/jwt/jwtstore"
+
 	"server-api/global"
 	"server-api/global/ecode"
 	"server-api/repository/platform"
@@ -54,13 +56,22 @@ func (s service) makeToken(ctx context.Context, user *platform.VWUser) (*tokenEn
 		return nil, err
 	}
 
+	// token 有效时长
+	duration := 1 * 24 * time.Hour
+	// 多地登陆
+	store := jwtstore.NewMultiRedisStore(global.SessionStoreClient)
+	//// 单一登陆
+	//store := jwtstore.NewSingleRedisStore(global.SessionStoreClient)
 	// 生成JWT TOKEN
-	token := jwt.NewToken(types.User{
+	token := jwt.NewStatefulToken(types.User{
 		ID:      user.ID,
 		Account: user.Account,
 		Name:    user.Nickname,
 		Roles:   roles,
-	}).WithSecret([]byte(global.Config.App.Secret))
+	}, store).
+		WithIssuer(global.Config.App.ID).
+		WithSecret([]byte(global.Config.App.Secret)).
+		WithDuration(duration)
 
 	tokenStr, err := token.ToString()
 	if err != nil {
@@ -93,14 +104,30 @@ func (s service) makeToken(ctx context.Context, user *platform.VWUser) (*tokenEn
 	})
 
 	return &tokenEntity{
-		ID:           user.ID,
-		AvatarURL:    user.ShowAvatarURL(),
-		Name:         user.ShowName(),
-		Introduction: "",
-		CurrentRole:  user.CurrentRole().String(),
-		Roles:        roleTitles,
-		AccessToken:  tokenStr,
+		AccessToken: tokenStr,
+		ExpireTime:  int64(duration.Seconds()),
+		Profile: &profileEntity{
+			ID:          user.ID,
+			Name:        user.ShowName(),
+			AvatarURL:   user.ShowAvatarURL(),
+			CurrentRole: user.CurrentRole().String(),
+			Roles:       roleTitles,
+		},
 	}, nil
+}
+
+func (s service) Logout(ctx context.Context) error {
+	owner := global.ParseUser(ctx)
+	if owner.GetID() == 0 {
+		return nil
+	}
+
+	// 清除 token
+	if err := jwtstore.NewMultiRedisStore(global.SessionStoreClient).Clean(owner.GetID()); nil != err {
+		return xerror.WrapWithXCode(err, ecode.ErrorHandleFailed)
+	}
+
+	return nil
 }
 
 func (s service) ChangePwd(ctx context.Context, in *changePwdRequest) error {
@@ -124,9 +151,15 @@ func (s service) ChangePwd(ctx context.Context, in *changePwdRequest) error {
 
 	password, err := userutil.NewHasher().Sum(in.NewPassword)
 	if nil != err {
-		return xerror.Wrap(err, "生成密码失败")
+		return xerror.WrapWithXCode(err, ecode.ErrorHandleFailed)
 	}
 	user.Password = password
 
-	return dao.NewUser().Save(user.ToUser())
+	if err := dao.NewUser().Save(user.ToUser()); nil != err {
+		return xerror.WrapWithXCode(err, ecode.ErrorHandleFailed)
+	}
+
+	// 注销登陆
+	_ = s.Logout(ctx)
+	return nil
 }

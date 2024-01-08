@@ -12,16 +12,16 @@ type createTokenRequest struct {
 	Password string      `json:"password"`
 }
 
-func (c createTokenRequest) Validate() error {
-	if c.Genre != global.RoleAdmin && c.Genre != global.RoleUser {
+func (in createTokenRequest) Validate() error {
+	if in.Genre != global.RoleAdmin && in.Genre != global.RoleUser {
 		return xerror.New("该帐号角色未开通登录权限")
 	}
 
-	if len(c.Account) == 0 || len(c.Password) == 0 {
+	if len(in.Account) == 0 || len(in.Password) == 0 {
 		return xerror.New("请填写正确的登录信息")
 	}
 
-	if len(c.Password) < 6 {
+	if len(in.Password) < 6 {
 		return xerror.New("密码 错误")
 	}
 
@@ -33,14 +33,14 @@ type changePwdRequest struct {
 	NewPassword string `json:"newPassword"`
 }
 
-func (c changePwdRequest) Validate() error {
-	if len(c.OldPassword) == 0 {
+func (in changePwdRequest) Validate() error {
+	if len(in.OldPassword) == 0 {
 		return xerror.New("原密码 不能为空")
 	}
-	if len(c.NewPassword) < 6 {
+	if len(in.NewPassword) < 6 {
 		return xerror.New("新密码 不能少于6个字符")
 	}
-	if c.NewPassword == c.OldPassword {
+	if in.NewPassword == in.OldPassword {
 		return xerror.New("原密码 和 新密码 不能一致")
 	}
 

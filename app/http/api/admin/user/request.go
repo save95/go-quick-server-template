@@ -12,11 +12,11 @@ type paginateRequest struct {
 }
 
 type createRequest struct {
-	Genres   []uint8 `json:"genres"`
-	Account  string  `json:"account"`
-	IsBoss   bool    `json:"isBoss"`
-	Avatar   string  `json:"avatar"`
-	Password string  `json:"password"`
+	Account   string  `json:"account"`
+	Nickname  string  `json:"nickname"`
+	AvatarURL string  `json:"avatarUrl"`
+	Password  string  `json:"password"`
+	Genres    []uint8 `json:"genres"`
 }
 
 func (in *createRequest) GetGenres() []int8 {
@@ -43,13 +43,15 @@ func (in *createRequest) Validate() error {
 }
 
 type modifyRequest struct {
-	Account   string `json:"account"`
-	IsBoss    bool   `json:"isBoss"`
-	AvatarURL string `json:"avatar"`
-	Password  string `json:"password"`
-	State     int8   `json:"state"`
+	createRequest
+
+	State int8 `json:"state"`
 }
 
 func (in *modifyRequest) Validate() error {
+	if err := in.createRequest.Validate(); nil != err {
+		return err
+	}
+
 	return nil
 }

@@ -4,9 +4,8 @@ package global
 type projectConfig struct {
 	// 服务配置
 	Server struct {
-		AppID string `toml:"app_id"`
-		Addr  string `toml:"addr"`
-		Host  string `toml:"host"`
+		Addr string `toml:"addr"`
+		Host string `toml:"host"`
 	} `toml:"server"`
 
 	// 日志配置
@@ -57,11 +56,13 @@ type projectConfig struct {
 
 	// App 配置
 	App struct {
-		Env                string // 系统环境: prod/production-生产环境，local-本地环境
+		ID                 string `toml:"id"`
+		Name               string `toml:"name"`
+		Env                string `toml:"env"`                  // 系统环境: prod/production-生产环境，local-本地环境
 		ClearExampleFile   bool   `toml:"clear_example_file"`   // 是否自动删除样例文件
 		ClearConfigFile    bool   `toml:"clear_config_file"`    // 启动后是否自动删除配置文件
 		WatchConfigEnabled bool   `toml:"watch_config_enabled"` // 监听配置文件变更，自动更新配置
-		Secret             string // 密钥：jwt 认证等
+		Secret             string `toml:"secret"`               // 密钥：jwt 认证等
 
 		// 资源配置
 		Resource struct {

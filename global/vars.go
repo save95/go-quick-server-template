@@ -14,6 +14,8 @@ var (
 
 var (
 	RedisClient *redis.Client
+
+	SessionStoreClient *redis.Client
 )
 
 var (

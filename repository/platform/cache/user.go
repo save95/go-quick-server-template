@@ -24,20 +24,20 @@ func NewUser() *user {
 	}
 }
 
-func (s *user) Paginate(ctx context.Context, opt pager.Option) ([]*platform.User, uint, error) {
+func (s *user) Paginate(ctx context.Context, opt pager.Option) ([]*platform.VWUser, uint, error) {
 	key := s.name
 	data, err := dbcache.NewDefault(key, global.CacheManager).
 		WithExpiration(time.Hour). // 默认5分钟，改成1小时缓存
 		Paginate(ctx, opt, func() (interface{}, uint, error) {
 			// 原始方法
-			return dao.NewUser().Paginate(opt)
+			return dao.NewVWUser().Paginate(opt)
 		})
 	if nil != err {
 		return nil, 0, err
 	}
 
 	// 解码
-	var res []*platform.User
+	var res []*platform.VWUser
 	if err := json.Unmarshal(data.DataBytes, &res); nil != err {
 		return nil, 0, xerror.Wrap(err, "data convert error")
 	}
@@ -45,7 +45,7 @@ func (s *user) Paginate(ctx context.Context, opt pager.Option) ([]*platform.User
 	return res, data.Total, nil
 }
 
-func (s *user) First(ctx context.Context, id uint) (*platform.User, error) {
+func (s *user) First(ctx context.Context, id uint) (*platform.VWUser, error) {
 	if id == 0 {
 		return nil, xerror.New("id error")
 	}
@@ -55,14 +55,14 @@ func (s *user) First(ctx context.Context, id uint) (*platform.User, error) {
 		WithExpiration(time.Hour). // 默认5分钟，改成1小时缓存
 		First(ctx, id, func() (interface{}, error) {
 			// // 原始方法
-			return dao.NewUser().First(id)
+			return dao.NewVWUser().First(id)
 		})
 	if nil != err {
 		return nil, err
 	}
 
 	// 解码
-	var res platform.User
+	var res platform.VWUser
 	if err := json.Unmarshal([]byte(data), &res); nil != err {
 		return nil, xerror.Wrap(err, "data convert error")
 	}

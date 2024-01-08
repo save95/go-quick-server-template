@@ -3,17 +3,21 @@ package admin
 import (
 	"server-api/global"
 
+	"github.com/save95/go-pkg/http/jwt/jwtstore"
+
 	"github.com/gin-gonic/gin"
 	"github.com/save95/go-pkg/http/middleware"
-	"github.com/save95/go-pkg/http/types"
 )
 
 func Register(router *gin.Engine) {
 	ra := router.Group(
 		"/admin",
 		middleware.RESTFul(global.ApiVersionLatest),
-		middleware.JWTWith(global.JWTOption(false)),
-		middleware.Roles([]types.IRole{global.RoleAdmin}),
+		middleware.JWTStatefulWith(
+			global.JWTOption(false),
+			jwtstore.NewMultiRedisStore(global.SessionStoreClient), // 多地登录
+		),
+		middleware.WithRole(global.RoleAdmin),
 	)
 
 	registerUser(ra)

@@ -56,7 +56,8 @@ func (s service) Create(_ context.Context, in *createRequest) (*entity, error) {
 
 	record := platform.User{
 		Account:   in.Account,
-		AvatarURL: in.Avatar,
+		Nickname:  in.Nickname,
+		AvatarURL: in.AvatarURL,
 		Password:  pwd,
 		State:     1,
 	}
@@ -102,6 +103,7 @@ func (s service) Modify(_ context.Context, id uint, in *modifyRequest) (*entity,
 		record.Account = in.Account
 	}
 
+	record.Nickname = in.Nickname
 	record.AvatarURL = in.AvatarURL
 	record.State = in.State
 

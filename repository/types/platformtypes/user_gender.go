@@ -6,7 +6,7 @@ import "github.com/save95/xerror"
 type Gender int8
 
 const (
-	GenderUnknown Gender = iota // 未知
+	GenderUnknown Gender = iota // 保密
 	GenderMale                  // 男性
 	GenderFemale                // 女性
 )
@@ -14,7 +14,7 @@ const (
 func (m Gender) String() string {
 	switch m {
 	case GenderUnknown:
-		return "未知"
+		return "保密"
 	case GenderMale:
 		return "男"
 	case GenderFemale:

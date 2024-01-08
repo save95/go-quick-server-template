@@ -24,6 +24,15 @@ func initRedis() error {
 		return xerror.Wrap(err, "redis client connect failed")
 	}
 
+	global.SessionStoreClient = redis.NewClient(&redis.Options{
+		Addr:     global.Config.Redis.Addr,
+		Password: global.Config.Redis.Password,
+		DB:       10,
+	})
+	if err := global.SessionStoreClient.Ping(context.Background()).Err(); nil != err {
+		return xerror.Wrap(err, "redis client connect failed")
+	}
+
 	global.Log.Debug("redis enabled, init success")
 
 	return nil

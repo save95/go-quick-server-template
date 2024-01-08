@@ -24,9 +24,42 @@ type User struct {
 	State        int8
 	LastLoginAt  *time.Time
 	LastLoginIP  string
-	DriverNo     string
+	LastDriverNo string
 
 	UserRoles []*UserRole `gorm:"foreignKey:UserID"`
+}
+
+func (u User) HasPassword() bool {
+	return len(u.Password) > 0
+}
+
+func (u User) StateText() string {
+	switch u.State {
+	case -1:
+		return "禁用"
+	case 0:
+		return "未知"
+	case 1:
+		return "有效"
+	default:
+		return "未定义"
+	}
+}
+
+func (u User) Genres() []int8 {
+	res := []int8{
+		int8(global.RoleUser),
+	}
+
+	if u.UserRoles == nil || len(u.UserRoles) == 0 {
+		return res
+	}
+
+	for _, role := range u.UserRoles {
+		res = append(res, int8(role.Genre))
+	}
+
+	return res
 }
 
 func (u User) Roles() ([]types.IRole, []string, error) {
