@@ -22,7 +22,7 @@ func initialize(cnf global.InitConfig) error {
 	}
 
 	// 初始化日志
-	if err := logger.Init(); err != nil {
+	if err := logger.Init(cnf.LogCategory()); err != nil {
 		return errors.Wrap(err, "init logger failed")
 	}
 

@@ -14,6 +14,24 @@ type InitConfig struct {
 	CMDConfig *CMDConfig
 }
 
+func (m InitConfig) LogCategory() string {
+	if len(m.RegisterServers) > 1 {
+		return ""
+	}
+	if m.CMDConfig != nil {
+		return "command"
+	}
+
+	switch m.RegisterServers[0] {
+	case InitServerTypeCronjob:
+		return "cronjob"
+	case InitServerTypeListener:
+		return "listener"
+	default:
+		return ""
+	}
+}
+
 type InitServerType int
 
 const (

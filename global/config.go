@@ -11,7 +11,6 @@ type projectConfig struct {
 	// 日志配置
 	Log struct {
 		Dir              string // 存储目录路径
-		Category         string // 日志分类目录
 		Level            string // 日志级别
 		Format           string // 日志格式：text-文本(默认)，json-JSON(普遍应用于云服务器)
 		StdPrint         bool   `toml:"std_print"`           // 是否打印到控制台
