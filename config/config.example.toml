@@ -5,7 +5,7 @@ addr = "0.0.0.0:8002"
 host = ""
 
 [app]
-# 服务标示
+# 服务标识
 id = "server-api"
 # 服务名
 name = "应用名"
@@ -107,4 +107,14 @@ drive = "redis"
     auth    = ""
     db      = 3
 
+# 监听器
+[listener]
+    driver = "kafka"
+    [listener.kafka]
+    addrs = ["127.0.0.1:9092"]
 
+# 监听器
+[pusher]
+    driver = "kafka"
+    [pusher.kafka]
+    addrs = ["127.0.0.1:9092"]

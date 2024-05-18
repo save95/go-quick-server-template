@@ -98,3 +98,4 @@ config/*
 !main.go
 server-api*
 logs
+app/**/storage

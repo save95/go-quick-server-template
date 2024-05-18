@@ -2,27 +2,29 @@ package boot
 
 import (
 	"context"
+	"server-api/boot/internal/command"
 
 	jobapp "server-api/app/job"
-	"server-api/boot/command"
 	"server-api/global"
 
 	"github.com/pkg/errors"
 )
 
-func Command(cnf global.InitConfig) error {
+func Command(cnf global.BootConfig) error {
 	if err := initialize(cnf); nil != err {
 		return errors.Wrap(err, "initialize failed")
 	}
 
-	// 注册所有命令
-	jobapp.RegisterCmd()
-
-	// 执行命令
 	conf := cnf.CMDConfig
 	ctx := context.Background()
-	command.NewCommand(ctx, conf.Timeout).Execute(conf.Name, conf.Args...)
+	cmd := command.NewCommand(ctx, conf.Timeout)
 
-	global.Log.Info("Command done")
+	// 注册所有命令
+	jobapp.CMDRegister(cmd)
+
+	// 执行命令
+	cmd.Execute(conf.Name, conf.Args...)
+
+	global.Log.Infof("[%s] command done", conf.Name)
 	return nil
 }

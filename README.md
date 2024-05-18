@@ -13,7 +13,8 @@ git clone --depth=1 -b main https://github.com/save95/go-quick-server-template.g
 cd server-api
 rm -rf .git
 
-git init --initial-branch=main
+git init
+git checkout -b main
 git remote add origin https://xxxxxx
 git add .
 git commit -m "init"
@@ -44,11 +45,19 @@ make build
 ./main
 # 等同于 ./main -config=config/config.toml -mode=all
 
-# 指定配置和应用模块
+# 启动 web
 ./main -config=https://www.domain.com/app/config.toml -mode=web
 
+# 启动 cronjob
+./main -config=config/config.toml -mode=job
+
+# 启动 listener
+./main -config=config/config.toml -mode=listener
+
 # 执行一次性脚本命令
-./main -config=https://www.domain.com/app/config.toml -mode=cmd cmd.name=example-simple
+./main -config=config/config.toml -mode=cmd -cmd.name=example-simple
+# 携带自定义参数执行脚本命令
+./main -config=config/config.toml -mode=cmd -cmd.name=example-simple -cmd.args=key1:value1 -cmd.args=key2:value2
 
 ```
 

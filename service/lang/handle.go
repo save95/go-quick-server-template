@@ -2,7 +2,10 @@ package lang
 
 import (
 	"context"
+	"errors"
 	"fmt"
+
+	"github.com/gin-gonic/gin"
 
 	"server-api/global"
 	"server-api/repository/platform/dao"
@@ -131,7 +134,7 @@ func Handle() func(code int, language string) string {
 		})
 
 		if nil != err {
-			if err != redis.Nil {
+			if !errors.Is(err, redis.Nil) {
 				global.Log.Errorf("get lang failed: lang=%s, err=%+v", language, err)
 			}
 			return ""
@@ -144,13 +147,14 @@ func Handle() func(code int, language string) string {
 // GetContent 获得语言包对应文字
 // 请求头中必须包含 `X-Use-Language` 才可以
 func GetContent(ctx context.Context, code xcode.XCode) string {
-	header, err := global.MustParseAPPHeader(ctx)
-	if nil != err {
-		global.Log.Errorf("parse header failed in lang.GetContent: %+v", err)
+	gtx, ok := ctx.(*gin.Context)
+	if !ok {
+		global.Log.Error("parse header failed in lang.GetContent")
 		return ""
 	}
 
-	msg := Handle()(code.Code(), header.UseLanguage)
+	language := gtx.GetHeader("X-Use-Language")
+	msg := Handle()(code.Code(), language)
 	if len(msg) == 0 {
 		return code.String()
 	}

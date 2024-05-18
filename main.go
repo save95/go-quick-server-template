@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-
 	"server-api/boot"
 	"server-api/global"
 )
@@ -13,7 +12,7 @@ import (
 var (
 	flagConf, flagMode string
 	flagCMDArgs        global.FlagSlice
-	flagCMDConf        global.CMDConfig
+	flagCMDConf        global.CMDBootConfig
 )
 
 func step() {
@@ -43,9 +42,9 @@ func main() {
 	log.Println("launcher starting...")
 	log.Printf("launcher flags: conf=%s, mode=%s\n", flagConf, flagMode)
 
-	cnf := global.InitConfig{
+	cnf := global.BootConfig{
 		ConfigFilename:  flagConf,
-		RegisterServers: make([]global.InitServerType, 0, 4),
+		RegisterServers: make([]global.BootServerType, 0, 4),
 	}
 
 	// command 命令
